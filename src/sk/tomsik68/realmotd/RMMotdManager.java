@@ -2,8 +2,10 @@ package sk.tomsik68.realmotd;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.util.Calendar;
+import java.util.Random;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,36 +21,53 @@ import org.bukkit.plugin.Plugin;
 import sk.tomsik68.realmotd.api.MotdManager;
 
 public class RMMotdManager implements MotdManager {
-    public RMMotdManager() {
-
+    private final EMotdMode mode;
+    private final Random rand;
+    public RMMotdManager(EMotdMode mode) {
+        rand = new Random();
+        this.mode = mode;
     }
 
     @Override
-    public File getMotdFile(Player player, int month, int day, boolean wspec, boolean gspec, boolean random) {
-        if (month < 0 && day < 0) {
-            return getDefaultMotdFile();
-        }
-        RealMotd plugin = (RealMotd) player.getServer().getPluginManager().getPlugin("RealMotd");
+    public File getMotdFile(Player player, int month, int day, boolean wspec, boolean gspec) {
         StringBuilder path = new StringBuilder();
-        path = path.append(plugin.getDataFolder().getAbsolutePath());
-        path = path.append(File.separatorChar);
-        path = path.append("messages");
-        path = path.append(File.separatorChar);
+        RealMotd plugin = (RealMotd) player.getServer().getPluginManager().getPlugin("RealMotd");
+        switch(mode){
+        case DAILY:
+            path = path.append(plugin.getDataFolder().getAbsolutePath());
+            path = path.append(File.separatorChar);
+            path = path.append("messages");
+            path = path.append(File.separatorChar);
         /*
          * if (gspec) { if (RealMotd.ph == null) path =
          * path.append(player.isOp() ? "ops" : "players"); else { path =
          * path.append(RealMotd.ph.getGroups(player.getWorld().getName(),
          * player.getName())[0]); } path = path.append(File.separatorChar); }
          */
-        if (wspec) {
-            path = path.append(player.getWorld().getName());
+            if (wspec) {
+                path = path.append(player.getWorld().getName());
+                path = path.append(File.separatorChar);
+            }
+            break;
+        case SINGLE:
+            return getDefaultMotdFile();
+        case RANDOM:
+            path = path.append(plugin.getDataFolder().getAbsolutePath());
             path = path.append(File.separatorChar);
+            path = path.append("messages");
+            path = path.append(File.separatorChar);
+            String[] files = new File(path.toString()).list(new FilenameFilter(){
+                @Override
+                public boolean accept(File arg0, String arg1) {
+                    return arg1.endsWith(".txt");
+                }});
+            path = path.append(files[rand.nextInt(files.length)]);
+            break;
         }
-        if (random) {
-            path = path.append(new File(path.toString()).list()[0]);
-        } else
-            path = path.append("motd_").append(month).append("_").append(day).append(".txt");
-        return new File(path.toString());
+        if(!new File(path.toString()).exists())
+            return getDefaultMotdFile();
+        else
+            return new File(path.toString());
     }
 
     public File getDefaultMotdFile() {
@@ -62,7 +81,21 @@ public class RMMotdManager implements MotdManager {
         int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         boolean wspec = plugin.getConfig().getBoolean("motd.world-specific", false);
         boolean gspec = plugin.getConfig().getBoolean("motd.group-specific", false);
-        String motd = getMotd(player, month, day, wspec, gspec, plugin.getConfig().getBoolean("motd.random", false));
+        String motd = addVariables(getMotd(player, month, day, wspec, gspec),player,plugin);
+        try {
+            // code required PII, so I changed it to reflection... :(
+            Class<? extends Event> clazz = (Class<? extends Event>) Class.forName("sk.tomsik68.pii.event.MotdSendEvent");
+            Event mse = clazz.getConstructor(CommandSender.class, String[].class).newInstance(player, motd.split("\n"));
+            plugin.getServer().getPluginManager().callEvent(mse);
+            if (((Cancellable) mse).isCancelled())
+                return;
+            player.sendMessage((String[]) clazz.getMethod("getMotd").invoke(mse));
+        } catch (Exception ee) {
+            player.sendMessage(motd.split("/n"));
+        }
+    }
+    @Override
+    public String addVariables(String motd, Player player, RealMotd plugin){
         motd = motd.replace("%player%", player.getDisplayName() == null ? player.getName() : player.getDisplayName());
         motd = motd.replace("%time%", "" + player.getWorld().getTime());
         /*
@@ -81,11 +114,11 @@ public class RMMotdManager implements MotdManager {
                 s = plugin.getTranslation("time.night");
             motd = motd.replace("%timestat%", s);
         }
-        s = "";
         if (motd.contains("%ptime%")) {
             motd = motd.replace("%ptime%", "" + player.getPlayerTime());
         }
-        if(motd.contains("%ptimestat%")){
+        s = "";
+        if (motd.contains("%ptimestat%")) {
             if (player.getPlayerTime() < 6000L)
                 s = plugin.getTranslation("time.morning");
             if (player.getPlayerTime() < 12000L && s.equals(""))
@@ -100,9 +133,9 @@ public class RMMotdManager implements MotdManager {
             s = plugin.getTranslation("diff." + player.getWorld().getDifficulty().name().toLowerCase());
             motd = motd.replace("%difficulty%", s);
         }
-        if(motd.contains("%day%"))
+        if (motd.contains("%day%"))
             motd = motd.replace("%day%", "" + player.getWorld().getFullTime() / 1000L / 24L);
-        if(motd.contains("%world%"))
+        if (motd.contains("%world%"))
             motd = motd.replace("%world%", player.getWorld().getName());
         if (motd.contains("%weather%")) {
             String weather = "<unknown>";
@@ -167,12 +200,12 @@ public class RMMotdManager implements MotdManager {
         motd = motd.replace("%mo%", "" + Calendar.getInstance().get(Calendar.MONTH));
         motd = motd.replace("%yr%", "" + Calendar.getInstance().get(Calendar.YEAR));
 
-        motd = motd.replace("%h%", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0"+Calendar.getInstance().get(Calendar.HOUR_OF_DAY) : Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
-        motd = motd.replace("%mi%", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0"+Calendar.getInstance().get(Calendar.MINUTE) : Calendar.getInstance().get(Calendar.MINUTE)));
-        motd = motd.replace("%s%", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0"+Calendar.getInstance().get(Calendar.SECOND) : Calendar.getInstance().get(Calendar.SECOND)));
+        motd = motd.replace("%h%", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) : Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
+        motd = motd.replace("%mi%", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.MINUTE) : Calendar.getInstance().get(Calendar.MINUTE)));
+        motd = motd.replace("%s%", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.SECOND) : Calendar.getInstance().get(Calendar.SECOND)));
 
         motd = motd.replace("%exp%", "" + player.getExp());
-        //thank you MC wiki :)
+        // thank you MC wiki :)
         int e = (int) (3.5 * (player.getLevel() + 1 * (player.getLevel() + 2) - player.getLevel() * (player.getLevel() + 1)));
         motd = motd.replace("%expprog%", "" + player.getExp() / e * 100);
         if (player.getWorld().getPVP()) {
@@ -208,6 +241,7 @@ public class RMMotdManager implements MotdManager {
         for (ChatColor cc : ChatColor.values()) {
             motd = motd.replace("&" + cc.name().toLowerCase(), cc.toString());
             motd = motd.replace("&" + cc.name().toUpperCase(), cc.toString());
+            motd = motd.replace("&" + cc.getChar(), cc.toString());
         }
         if (motd.contains("&bo")) {
             motd = motd.replaceAll("&bold", ChatColor.BOLD.toString());
@@ -219,7 +253,7 @@ public class RMMotdManager implements MotdManager {
             motd = motd.replaceAll("&str", ChatColor.STRIKETHROUGH.toString());
         }
         if (motd.contains("&ran")) {
-            motd = motd.replaceAll("&ran", "§k blahblahblah");
+            motd = motd.replaceAll("&ran", ChatColor.MAGIC.toString());
         }
         if (motd.contains("&un")) {
             motd = motd.replaceAll("&un", ChatColor.UNDERLINE.toString());
@@ -250,23 +284,12 @@ public class RMMotdManager implements MotdManager {
                 }
             }
         }
-        try {
-            //code required PII, so I changed it to reflection... :(
-            Class<? extends Event> clazz = (Class<? extends Event>) Class.forName("sk.tomsik68.pii.MotdSendEvent");
-            Event mse = clazz.getConstructor(CommandSender.class,String[].class).newInstance(player,motd.split("\n")); 
-            plugin.getServer().getPluginManager().callEvent(mse);
-            if (((Cancellable)mse).isCancelled())
-                return;
-            player.sendMessage((String[])clazz.getMethod("getMotd").invoke(mse));
-        } catch (Exception ee) {
-            player.sendMessage(motd.split("/n"));
-        }
+        return motd;
     }
-
     @Override
-    public String getMotd(Player player, int month, int day, boolean wspec, boolean gspec, boolean random) {
+    public String getMotd(Player player, int month, int day, boolean wspec, boolean gspec) {
         String motd = "<nothing>";
-        if (!getMotdFile(player, month, day, wspec, gspec, random).exists()) {
+        if (!getMotdFile(player, month, day, wspec, gspec).exists()) {
             if (getDefaultMotdFile().exists()) {
                 motd = Util.readFile(getDefaultMotdFile());
             } else {
@@ -285,7 +308,7 @@ public class RMMotdManager implements MotdManager {
                 motd = "&yellowHello &gray%player%!/n&greenThis is default MOTD of RealMotd by &goldTomsik68/n&redTo change it, go to &gray" + getDefaultMotdFile().getAbsolutePath();
             }
         } else {
-            motd = Util.readFile(getMotdFile(player, month, day, wspec, gspec, random));
+            motd = Util.readFile(getMotdFile(player, month, day, wspec, gspec));
         }
         return motd;
     }
@@ -302,6 +325,11 @@ public class RMMotdManager implements MotdManager {
             return ChatColor.GREEN;
         }
         return ChatColor.WHITE;
+    }
+
+    @Override
+    public EMotdMode getMode() {
+        return mode;
     }
 
 }

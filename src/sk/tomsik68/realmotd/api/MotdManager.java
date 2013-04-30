@@ -4,8 +4,12 @@ import java.io.File;
 
 import org.bukkit.entity.Player;
 
+import sk.tomsik68.realmotd.EMotdMode;
+import sk.tomsik68.realmotd.RealMotd;
+
 public interface MotdManager {
-	public File getMotdFile(Player player, int month,int day,boolean wspec,boolean gspec,boolean random);
+    public EMotdMode getMode();
+	public File getMotdFile(Player player, int month,int day,boolean wspec,boolean gspec);
 	/**
 	 * 
 	 * @param player
@@ -15,5 +19,7 @@ public interface MotdManager {
 	 * @param motd - Motd split in lines
 	 */
 	public void sendMotd(Player player);
-	public String getMotd(Player player, int month, int day, boolean wspec, boolean gspec,boolean random);
+	public String getMotd(Player player, int month, int day, boolean wspec, boolean gspec);
+	
+    String addVariables(String motd, Player player, RealMotd plugin);
 }

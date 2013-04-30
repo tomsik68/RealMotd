@@ -1,7 +1,6 @@
 name: RealMotd
-author: tomsik68<tomsik68@gmail.com>
 main: sk.tomsik68.realmotd.RealMotd
-version: 0.51
+version: 0.7
 commands:
     motd:
-        description: Sends player motd.
+        description: Brings up the MOTD.
