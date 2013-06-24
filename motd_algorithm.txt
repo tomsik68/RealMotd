@@ -1,0 +1,21 @@
+SINGLE:
+1. Look for motd.txt in messages/group/world
+2. Look for motd.txt in messages/group/
+3. Look for motd.txt in messages/world
+4. Look for motd.txt in messages/
+DAILY:
+1. Look for motd_MONTH_DAY.txt in messages/group/world
+2. Look for motd_MONTH_DAY.txt in messages/group/
+3. Look for motd_MONTH_DAY.txt in messages/world
+4. Look for motd_MONTH_DAY.txt in messages/
+5. Look for motd.txt in messages/group/world
+6. Look for motd.txt in messages/group/
+7. Look for motd.txt in messages/world
+8. Look for motd.txt in messages/
+where MONTH is current month and DAY is the current day of the month
+RANDOM:
+- Note: RealMotd only gets to other step if there are no files with .txt ending in the given folder
+1. Any file from messages/group/world
+2. Any file from messages/group
+3. Any file from messages/world
+4. Any file from messages/

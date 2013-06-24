@@ -9,17 +9,21 @@ import sk.tomsik68.realmotd.RealMotd;
 
 public interface MotdManager {
     public EMotdMode getMode();
-	public File getMotdFile(Player player, int month,int day,boolean wspec,boolean gspec);
-	/**
-	 * 
-	 * @param player
-	 * @param world
-	 * @param month
-	 * @param day
-	 * @param motd - Motd split in lines
-	 */
-	public void sendMotd(Player player);
-	public String getMotd(Player player, int month, int day, boolean wspec, boolean gspec);
-	
+
+    public File getMotdFile(Player player, int month, int day);
+
+    /**
+     * 
+     * @param player
+     * @param world
+     * @param month
+     * @param day
+     * @param motd
+     *            - Motd split in lines
+     */
+    public void sendMotd(Player player);
+
+    public String getMotd(Player player, int month, int day);
+
     String addVariables(String motd, Player player, RealMotd plugin);
 }

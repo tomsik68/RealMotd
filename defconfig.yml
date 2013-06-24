@@ -1,0 +1,53 @@
+# Available colors:black,dark_blue,dark_green,dark_aqua,dark_red,dark_purple,gold,gray,dark_gray,blue,green,aqua,red,light_purple,yellow,white,magic,bold,strikethrough,underline,italic,reset
+permission: ^
+command: '>'
+motd:
+  world-specific: false
+  group-specific: false
+  mode: single # Single, Daily, Random
+rainbow-colors:
+    - aqua
+    - blue
+    - gold
+    - green
+    - light_purple
+    - red
+    - white
+    - yellow
+transl:
+  time:
+    morning: Morning
+    day: Day
+    evening: Evening
+    night: Night
+  weather:
+    raining: \&dark_blueRaining
+    clear: Clear
+  mode:
+    creative: Creative
+    survival: Survival
+    adventure: Adventure
+  env:
+    nether: Nether
+    skylands: Skylands
+    normal: Normal
+    the_end: The End
+  diff:
+    peaceful: Peaceful
+    easy: Easy
+    normal: Normal
+    hard: Hard
+  op:
+    is: Operator
+    isnt: Player
+  flight:
+    allowed: can
+    denied: can't
+  nether:
+    allowed: nether is allowed
+    denied: denied
+  permission:
+    has: can
+    hasnt: cant
+  comm:
+    fail: Command failed

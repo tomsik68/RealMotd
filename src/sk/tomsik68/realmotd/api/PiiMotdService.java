@@ -12,12 +12,12 @@ public class PiiMotdService implements MOTDPlugin {
     }
     @Override
     public String[] getMotd(Player player) {
-        return man.getMotd(player, -1, -1, false, false).split("/n");
+        return man.getMotd(player, -1, -1).split("/n");
     }
 
     @Override
     public void setMotd(Player player, String... motd) {
-        Util.writeFile(man.getMotdFile(player, -1, -1, false, false), motd);
+        Util.writeFile(man.getMotdFile(player, -1, -1), motd);
     }
 
 }

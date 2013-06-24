@@ -1,6 +1,10 @@
 name: RealMotd
 main: sk.tomsik68.realmotd.RealMotd
-version: 0.7
+version: 0.8
 commands:
     motd:
         description: Brings up the MOTD.
+    realmotd:
+        description: Management command. /realmotd reload - reloads configuration file.
+        usage: /realmotd reload
+        permission: server.op
