@@ -5,6 +5,7 @@ motd:
   world-specific: false
   group-specific: false
   mode: single # Single, Daily, Random
+  delay: 0 # Delay of MOTD in ticks. Only affects motd on join, not triggered by /motd
 rainbow-colors:
     - aqua
     - blue

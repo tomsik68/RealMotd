@@ -1,0 +1,178 @@
+// begin rewrite
+        variables.put("player", new Variable(player, plugin) {
+            @Override
+            protected String getValue() {
+                return player.getName();
+            }
+        });
+        variables.put("nick", new Variable(player, plugin) {
+            @Override
+            protected String getValue() {
+                return player.getDisplayName();
+            }
+        });
+        variables.put("time", new Variable(player, plugin) {
+            @Override
+            protected String getValue() {
+                return "" + player.getWorld().getTime();
+            }
+        });
+        variables.put("timestat", new TimeStatVariable(plugin, player.getWorld().getTime()));
+        // TODO call an event at the end
+        // end rewrite
+        // --------------------------------------------------------------------------
+        if (motd.contains("%player%"))
+            variables.put("player", player.getName());
+        if (motd.contains("%nick%"))
+            variables.put("nick", player.getDisplayName());
+        if (motd.contains("%time%"))
+            variables.put("time", "" + player.getWorld().getTime());
+        String timeStat = "";
+        if (motd.contains("%timestat%")) {
+            if (player.getWorld().getTime() < 6000L)
+                timeStat = plugin.getTranslation("time.morning");
+            if (player.getWorld().getTime() < 12000L && timeStat.length() == 0)
+                timeStat = plugin.getTranslation("time.day");
+            if (player.getWorld().getTime() < 18000L && timeStat.length() == 0)
+                timeStat = plugin.getTranslation("time.evening");
+            if (player.getWorld().getTime() < 24000L && timeStat.length() == 0)
+                timeStat = plugin.getTranslation("time.night");
+            variables.put("timestat", timeStat);
+        }
+        if (motd.contains("%ptime%"))
+            variables.put("ptime", "" + player.getPlayerTime());
+        String s = "";
+        if (motd.contains("%ptimestat%")) {
+            if (player.getPlayerTime() < 6000L)
+                s = plugin.getTranslation("time.morning");
+            if (player.getPlayerTime() < 12000L && s.length() == 0)
+                s = plugin.getTranslation("time.day");
+            if (player.getPlayerTime() < 18000L && s.length() == 0)
+                s = plugin.getTranslation("time.evening");
+            if (player.getPlayerTime() < 24000L && s.length() == 0)
+                s = plugin.getTranslation("time.night");
+        }
+        variables.put("ptimestat", s);
+
+        if (motd.contains("%difficulty%")) {
+            s = plugin.getTranslation("diff." + player.getWorld().getDifficulty().name().toLowerCase());
+            variables.put("difficulty", s);
+        }
+        if (motd.contains("%day%"))
+            variables.put("day", "" + player.getWorld().getFullTime() / 1000L / 24L);
+        if (motd.contains("%world%"))
+            variables.put("world", player.getWorld().getName());
+        if (motd.contains("%weather%")) {
+            String weather = "<unknown>";
+            if (player.getWorld().hasStorm())
+                weather = plugin.getTranslation("weather.raining");
+            else
+                weather = plugin.getTranslation("weather.clear");
+            variables.put("weather", weather);
+        }
+        if (motd.contains("%ip%"))
+            variables.put("ip", player.getAddress().getHostName());
+        StringBuilder sb = new StringBuilder();
+        if (motd.contains("%playerlist%")) {
+            for (Player p : plugin.getServer().getOnlinePlayers()) {
+                sb = sb.append(p.getDisplayName()).append(',');
+            }
+            if (sb.length() > 0)
+                sb.deleteCharAt(sb.length() - 1);
+            variables.put("playerlist", sb.toString());
+        }
+        variables.put("nplayersonline", "" + plugin.getServer().getOnlinePlayers().length);
+        variables.put("nmaxplayers", "" + plugin.getServer().getMaxPlayers());
+        variables.put("serverip", "" + plugin.getServer().getIp());
+        variables.put("serverport", "" + plugin.getServer().getPort());
+        variables.put("serverid", "" + plugin.getServer().getServerId());
+        s = "";
+        s = (plugin.getServer().getAllowFlight() ? plugin.getTranslation("flight.allowed") : plugin.getTranslation("flight.denied"));
+        variables.put("allowflight", "" + s);
+        s = (plugin.getServer().getAllowNether() ? plugin.getTranslation("nether.allowed") : plugin.getTranslation("nether.denied"));
+        variables.put("allowednether", "" + s);
+        s = (plugin.getServer().getAllowEnd() ? plugin.getTranslation("end.allowed") : plugin.getTranslation("end.denied"));
+        variables.put("allowend", s);
+        if (motd.contains("%env%"))
+            variables.put("env", "" + plugin.getTranslation("env." + player.getWorld().getEnvironment().name().toLowerCase()));
+        sb = new StringBuilder();
+        if (motd.contains("%whitelist%")) {
+            for (OfflinePlayer op : plugin.getServer().getWhitelistedPlayers()) {
+                sb = sb.append(op.getName()).append(',');
+            }
+            if (sb.length() > 0)
+                sb = sb.deleteCharAt(sb.length() - 1);
+            variables.put("whitelist", "" + sb.toString());
+        }
+        sb = new StringBuilder();
+        if (motd.contains("%banlist%")) {
+            for (OfflinePlayer op : plugin.getServer().getBannedPlayers()) {
+                sb = sb.append(op.getName()).append(',');
+            }
+            if (sb.length() > 0)
+                sb = sb.deleteCharAt(sb.length() - 1);
+            variables.put("banlist", "" + sb.toString());
+        }
+        if (motd.contains("%worlds%")) {
+            sb = new StringBuilder();
+            for (World world : plugin.getServer().getWorlds()) {
+                sb = sb.append(diffToColor(world.getDifficulty()).toString()).append(world.getName()).append(ChatColor.WHITE).append(',');
+            }
+            if (sb.length() > 0)
+                sb.deleteCharAt(sb.length() - 1);
+            variables.put("worlds", "" + sb.toString());
+        }
+        variables.put("d", "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
+        variables.put("mo", "" + Calendar.getInstance().get(Calendar.MONTH));
+        variables.put("yr", "" + Calendar.getInstance().get(Calendar.YEAR));
+
+        variables.put("h", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) : Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
+        variables.put("mi", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.MINUTE) : Calendar.getInstance().get(Calendar.MINUTE)));
+        variables.put("s", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.SECOND) : Calendar.getInstance().get(Calendar.SECOND)));
+        if (motd.contains("%exp%"))
+            variables.put("exp", "" + player.getExp());
+        // thank you MC wiki :)
+        if (motd.contains("%expprog%")) {
+            int e = (int) (3.5 * (player.getLevel() + 1 * (player.getLevel() + 2) - player.getLevel() * (player.getLevel() + 1)));
+            variables.put("expprog", "" + player.getExp() / e * 100);
+        }
+        if (motd.contains("%pvp%")) {
+            if (player.getWorld().getPVP()) {
+                s = plugin.getTranslation("pvp.allowed");
+            } else
+                s = plugin.getTranslation("pvp.denied");
+        }
+        variables.put("pvp", s);
+        if (motd.contains("%x%"))
+            variables.put("x", "" + player.getLocation().getX());
+        if (motd.contains("%y%"))
+            variables.put("y", "" + player.getLocation().getY());
+        if (motd.contains("%z%"))
+            variables.put("z", "" + player.getLocation().getZ());
+        if (motd.contains("%lev%"))
+            variables.put("lev", "" + player.getLevel());
+        if (motd.contains("%food%"))
+            variables.put("food", "" + player.getFoodLevel());
+        if (motd.contains("%totalexp%"))
+            variables.put("totalexp", "" + player.getTotalExperience());
+        if (motd.contains("%plugins%")) {
+            Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
+            sb.delete(0, sb.length() - 1);
+            for (Plugin plug : plugins) {
+                sb = sb.append(plug.getDescription().getName()).append(',');
+            }
+            sb = sb.deleteCharAt(sb.length() - 1);
+            variables.put("plugins", sb.toString());
+        }
+        s = "<unknown>";
+        if (motd.contains("%op%")) {
+            if (player.isOp())
+                s = plugin.getTranslation("op.is");
+            else
+                s = plugin.getTranslation("op.isnt");
+            variables.put("op", "" + s);
+        }
+        if (motd.contains("%mode%")) {
+            s = plugin.getTranslation("mode." + player.getGameMode().name().toLowerCase());
+            variables.put("mode", s);
+        }

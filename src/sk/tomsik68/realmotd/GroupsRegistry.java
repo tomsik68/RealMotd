@@ -20,6 +20,7 @@ public class GroupsRegistry {
     }
 
     public void load() {
+        groups.clear();
         if (dataFile.exists()) {
             YamlConfiguration cfg = YamlConfiguration.loadConfiguration(dataFile);
             Set<String> keys = cfg.getConfigurationSection("groups").getKeys(false);

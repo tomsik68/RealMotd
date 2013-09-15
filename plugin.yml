@@ -1,10 +1,10 @@
 name: RealMotd
 main: sk.tomsik68.realmotd.RealMotd
-version: 0.8
+version: 0.9
 commands:
     motd:
         description: Brings up the MOTD.
     realmotd:
-        description: Management command. /realmotd reload - reloads configuration file.
-        usage: /realmotd reload
+        description: Management command. /realmotd reload - reloads configuration file. /realmotd groups - lists groups. /realmotd set - sets MOTD
+        usage: /realmotd reload | /realmotd groups | /realmotd set [-month <month>] [-day <day>] [-group <group>] [-world <world>] <MOTD>
         permission: server.op

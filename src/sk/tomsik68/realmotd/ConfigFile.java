@@ -67,16 +67,20 @@ public class ConfigFile {
 
     public ChatColor[] getRainbowColors() {
         List<String> colors = config.getStringList("rainbow-colors");
-        if(colors == null){
-            return new ChatColor[]{ChatColor.RED,ChatColor.GREEN,ChatColor.BLUE};
+        if (colors == null) {
+            return new ChatColor[] { ChatColor.RED, ChatColor.GREEN, ChatColor.BLUE };
         }
         ChatColor[] result = new ChatColor[colors.size()];
         int i = 0;
-        for(String s : colors){
+        for (String s : colors) {
             ChatColor cc = ChatColor.valueOf(s.toUpperCase());
             result[i] = cc;
             i++;
         }
         return result;
+    }
+
+    public int getDelay() {
+        return config.getInt("motd.delay", 0);
     }
 }

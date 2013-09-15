@@ -37,7 +37,7 @@ public class Util {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return "null";
+        return "<Error while reading '".concat(file.getPath()).concat("' >");
     }
 
     public static void writeFile(File file, String... lines) {

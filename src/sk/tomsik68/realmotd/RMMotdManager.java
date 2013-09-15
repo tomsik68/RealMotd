@@ -3,19 +3,19 @@ package sk.tomsik68.realmotd;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Difficulty;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -24,6 +24,7 @@ import org.bukkit.plugin.Plugin;
 
 import sk.tomsik68.realmotd.api.MotdManager;
 import sk.tomsik68.realmotd.api.groups.Group;
+import sk.tomsik68.realmotd.vars.VariablesManager;
 
 public class RMMotdManager implements MotdManager {
     private final ConfigFile config;
@@ -37,127 +38,114 @@ public class RMMotdManager implements MotdManager {
     }
 
     @Override
+    public File getMotdFile(Plugin plugin, EMotdMode mode, String group, String world, int month, int day) {
+        List<File> potentialFiles = getPotentialFiles(plugin, mode, group, world, month, day);
+        for (File file : potentialFiles) {
+            if (file.exists()) {
+                return file;
+            }
+        }
+        // backup can be found in oldswitch.txt
+        return getDefaultMotdFile();
+    }
+
+    private List<File> getPotentialFiles(Plugin plugin, EMotdMode mode, String group, String world, int month, int day) {
+        String basePath = plugin.getDataFolder().getAbsolutePath() + File.separator + "messages";
+        List<File> result = new ArrayList<File>();
+        if (mode == EMotdMode.DAILY) {
+            result.addAll(getDailyMotdFiles(basePath, group, world, month, day));
+        } else if (mode == EMotdMode.RANDOM) {
+            result.addAll(getRandomMotdFiles(basePath, group, world));
+        }
+        result.addAll(getSingleMotdFiles(basePath, group, world));
+        return result;
+    }
+
+    private Collection<? extends File> getRandomMotdFiles(String basePath, String group, String world) {
+        List<File> result = new ArrayList<File>();
+        if (config.isGroupSpecific()) {
+            if (config.isWorldSpecific()) {
+                result.addAll(Arrays.asList(new File(getGroupFolder(basePath, group), world).listFiles(new FilenameFilter() {
+
+                    @Override
+                    public boolean accept(File arg0, String arg1) {
+                        return arg1.endsWith(".txt");
+                    }
+                })));
+            }
+            result.addAll(Arrays.asList(getGroupFolder(basePath, group).listFiles(new FilenameFilter() {
+
+                @Override
+                public boolean accept(File arg0, String arg1) {
+                    return arg1.endsWith(".txt");
+                }
+            })));
+        }
+        if (config.isWorldSpecific()) {
+            result.addAll(Arrays.asList(new File(basePath, world).listFiles(new FilenameFilter() {
+
+                @Override
+                public boolean accept(File arg0, String arg1) {
+                    return arg1.endsWith(".txt");
+                }
+            })));
+        }
+        result.addAll(Arrays.asList(new File(basePath).listFiles(new FilenameFilter() {
+
+            @Override
+            public boolean accept(File arg0, String arg1) {
+                return arg1.endsWith(".txt");
+            }
+        })));
+        Collections.shuffle(result, new Random());
+        return result;
+    }
+
+    private Collection<? extends File> getSingleMotdFiles(String basePath, String group, String world) {
+        List<File> result = new ArrayList<File>();
+        if (config.isGroupSpecific()) {
+            if (config.isWorldSpecific()) {
+                result.add(new File(getGroupFolder(basePath, group), world + File.separator + "motd.txt"));
+            }
+            result.add(new File(getGroupFolder(basePath, group), "motd.txt"));
+        }
+        if (config.isWorldSpecific()) {
+            result.add(new File(basePath, world + File.separator + "motd.txt"));
+        }
+        result.add(new File(basePath, "motd.txt"));
+        return result;
+
+    }
+
+    private Collection<? extends File> getDailyMotdFiles(String basePath, String group, String world, int month, int day) {
+        List<File> result = new ArrayList<File>();
+        if (config.isGroupSpecific()) {
+            if (config.isWorldSpecific()) {
+                result.add(new File(getGroupFolder(basePath, group), world + File.separator + "motd_" + month + "_" + day + ".txt"));
+            }
+            result.add(new File(getGroupFolder(basePath, group), "motd_" + month + "_" + day + ".txt"));
+        }
+        if (config.isWorldSpecific()) {
+            result.add(new File(basePath, world + File.separator + "motd_" + month + "_" + day + ".txt"));
+        }
+        result.add(new File(basePath, "motd_" + month + "_" + day + ".txt"));
+        return result;
+    }
+
+    private File getGroupFolder(String basePath, String group) {
+        return new File(basePath, group);
+    }
+
+    @Override
     public File getMotdFile(Player player, int month, int day) {
         RealMotd plugin = (RealMotd) player.getServer().getPluginManager().getPlugin("RealMotd");
         Group group = groups.getGroup(player);
-        switch (config.getMode()) {
-        case DAILY:
-            String path = plugin.getDataFolder().getAbsolutePath() + File.separator + "messages";
-            boolean groupOnlyExists = false;
-            boolean worldOnlyExists = false;
-            boolean groupAndWorldExists = false;
-            // Daily MOTD check
-            if (config.isGroupSpecific()) {
-                if (group != null)
-                    groupOnlyExists = new File(path + File.separator + group.getName(), "motd_" + month + "_" + day + ".txt").exists();
-            }
-            if (config.isWorldSpecific()) {
-                worldOnlyExists = new File(path + File.separator + player.getWorld().getName(), "motd_" + month + "_" + day + ".txt").exists();
-            }
-            if (config.isWorldSpecific() && config.isGroupSpecific()) {
-                groupAndWorldExists = new File(path + File.separator + group.getName() + File.separator + player.getWorld().getName(), "motd_" + month + "_" + day + ".txt").exists();
-            }
-            if (groupAndWorldExists) {
-                return new File(path + File.separator + group.getName() + File.separator + player.getWorld().getName(), "motd_" + month + "_" + day + ".txt");
-            } else if (groupOnlyExists) {
-                return new File(path + File.separator + group.getName(), "motd_" + month + "_" + day + ".txt");
-            } else if (worldOnlyExists) {
-                return new File(path + File.separator + player.getWorld().getName(), "motd_" + month + "_" + day + ".txt");
-            }
-            groupOnlyExists = false;
-            worldOnlyExists = false;
-            groupAndWorldExists = false;
-            // Default MOTD check
-            if (config.isGroupSpecific()) {
-                if (group != null)
-                    groupOnlyExists = new File(path + File.separator + group.getName(), "motd.txt").exists();
-            }
-            if (config.isWorldSpecific()) {
-                worldOnlyExists = new File(path + File.separator + player.getWorld().getName(), "motd.txt").exists();
-            }
-            if (config.isWorldSpecific() && config.isGroupSpecific()) {
-                groupAndWorldExists = new File(path + File.separator + group.getName() + File.separator + player.getWorld().getName(), "motd.txt").exists();
-            }
-            if (groupAndWorldExists) {
-                return new File(path + File.separator + group.getName() + File.separator + player.getWorld().getName(), "motd.txt");
-            } else if (groupOnlyExists) {
-                return new File(path + File.separator + group.getName(), "motd.txt");
-            } else if (worldOnlyExists) {
-                return new File(path + File.separator + player.getWorld().getName(), "motd.txt");
-            }
-            break;
-        case SINGLE:
-            path = plugin.getDataFolder().getAbsolutePath() + File.separator + "messages";
-            groupOnlyExists = false;
-            worldOnlyExists = false;
-            groupAndWorldExists = false;
-            group = groups.getGroup(player);
-            if (config.isGroupSpecific()) {
-                if (group != null)
-                    groupOnlyExists = new File(path + File.separator + group.getName(), "motd.txt").exists();
-            }
-            if (config.isWorldSpecific()) {
-                worldOnlyExists = new File(path + File.separator + player.getWorld().getName(), "motd.txt").exists();
-            }
-            if (config.isWorldSpecific() && config.isGroupSpecific()) {
-                groupAndWorldExists = new File(path + File.separator + group.getName() + File.separator + player.getWorld().getName(), "motd.txt").exists();
-            }
-            if (groupAndWorldExists) {
-                return new File(path + File.separator + group.getName() + File.separator + player.getWorld().getName(), "motd.txt");
-            } else if (groupOnlyExists) {
-                return new File(path + File.separator + group.getName(), "motd.txt");
-            } else if (worldOnlyExists) {
-                return new File(path + File.separator + player.getWorld().getName(), "motd.txt");
-            }
-            return getDefaultMotdFile();
-        case RANDOM:
-            ArrayList<File> files = new ArrayList<File>();
-            if (config.isGroupSpecific() && config.isWorldSpecific()) {
-                files.addAll(Arrays.asList(new File(plugin.getDataFolder() + File.separator + "messages" + File.separator + group.getName() + File.separator + player.getWorld().getName()).listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".txt");
-                    }
-                })));
-            }
-            if (files.size() > 0) {
-                return files.get(rand.nextInt(files.size()));
-            }
-            if (config.isGroupSpecific()) {
-                files.addAll(Arrays.asList(new File(plugin.getDataFolder() + File.separator + "messages" + File.separator + group.getName()).listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".txt");
-                    }
-                })));
-            }
-            if (files.size() > 0) {
-                return files.get(rand.nextInt(files.size()));
-            }
-            if (config.isWorldSpecific()) {
-                files.addAll(Arrays.asList(new File(plugin.getDataFolder() + File.separator + "messages" + File.separator + player.getWorld().getName()).listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".txt");
-                    }
-                })));
-            }
-            if (files.size() > 0) {
-                return files.get(rand.nextInt(files.size()));
-            }
-            files.addAll(Arrays.asList(new File(plugin.getDataFolder() + File.separator + "messages").listFiles(new FilenameFilter() {
-
-                @Override
-                public boolean accept(File dir, String name) {
-                    return name.endsWith(".txt");
-                }
-            })));
-            if (files.size() > 0) {
-                return files.get(rand.nextInt(files.size()));
-            }
-            break;
-        }
-        return getDefaultMotdFile();
+        String groupName = "";
+        if (group != null)
+            groupName = group.getName();
+        String world = player.getWorld().getName();
+        EMotdMode mode = config.getMode();
+        return getMotdFile(plugin, mode, groupName, world, month, day);
     }
 
     public File getDefaultMotdFile() {
@@ -186,155 +174,20 @@ public class RMMotdManager implements MotdManager {
 
     @Override
     public String addVariables(String motd, Player player, RealMotd plugin) {
-        HashMap<String, String> properties = new HashMap<String, String>();
-        properties.put("player", player.getName());
-        properties.put("nick", player.getDisplayName());
-        properties.put("time", "" + player.getWorld().getTime());
-        String timeStat = "";
-        if (motd.contains("%timestat%")) {
-            if (player.getWorld().getTime() < 6000L)
-                timeStat = plugin.getTranslation("time.morning");
-            if (player.getWorld().getTime() < 12000L && timeStat.length() == 0)
-                timeStat = plugin.getTranslation("time.day");
-            if (player.getWorld().getTime() < 18000L && timeStat.length() == 0)
-                timeStat = plugin.getTranslation("time.evening");
-            if (player.getWorld().getTime() < 24000L && timeStat.length() == 0)
-                timeStat = plugin.getTranslation("time.night");
-            properties.put("timestat", timeStat);
-        }
-        properties.put("ptime", "" + player.getPlayerTime());
-        String s = "";
-        if (motd.contains("%ptimestat%")) {
-            if (player.getPlayerTime() < 6000L)
-                s = plugin.getTranslation("time.morning");
-            if (player.getPlayerTime() < 12000L && s.length() == 0)
-                s = plugin.getTranslation("time.day");
-            if (player.getPlayerTime() < 18000L && s.length() == 0)
-                s = plugin.getTranslation("time.evening");
-            if (player.getPlayerTime() < 24000L && s.length() == 0)
-                s = plugin.getTranslation("time.night");
-        }
-        properties.put("ptimestat", s);
-        /*
-         * if (RealMotd.ph != null) motd = motd.replace("%group%",
-         * RealMotd.ph.getGroup(player.getWorld().getName(), player.getName()));
-         */
+        HashMap<String, Variable> variables = VariablesManager.instance.getVariables();
 
-        if (motd.contains("%difficulty%")) {
-            s = plugin.getTranslation("diff." + player.getWorld().getDifficulty().name().toLowerCase());
-            properties.put("difficulty", s);
-        }
-        if (motd.contains("%day%"))
-            properties.put("day", "" + player.getWorld().getFullTime() / 1000L / 24L);
-        properties.put("world", player.getWorld().getName());
-        if (motd.contains("%weather%")) {
-            String weather = "<unknown>";
-            if (player.getWorld().hasStorm())
-                weather = plugin.getTranslation("weather.raining");
-            else
-                weather = plugin.getTranslation("weather.clear");
-            properties.put("weather", weather);
-        }
-        properties.put("ip", player.getAddress().getHostName());
-        StringBuilder sb = new StringBuilder();
-        if (motd.contains("%playerlist%")) {
-            for (Player p : plugin.getServer().getOnlinePlayers()) {
-                sb = sb.append(p.getDisplayName()).append(',');
-            }
-            if (sb.length() > 0)
-                sb.deleteCharAt(sb.length() - 1);
-            properties.put("playerlist", sb.toString());
-        }
-        properties.put("nplayersonline", "" + plugin.getServer().getOnlinePlayers().length);
-        properties.put("nmaxplayers", "" + plugin.getServer().getMaxPlayers());
-        properties.put("serverip", "" + plugin.getServer().getIp());
-        properties.put("serverport", "" + plugin.getServer().getPort());
-        properties.put("serverid", "" + plugin.getServer().getServerId());
-        s = "";
-        s = (plugin.getServer().getAllowFlight() ? plugin.getTranslation("flight.allowed") : plugin.getTranslation("flight.denied"));
-        properties.put("allowflight", "" + s);
-        s = (plugin.getServer().getAllowNether() ? plugin.getTranslation("nether.allowed") : plugin.getTranslation("nether.denied"));
-        properties.put("allowednether", "" + s);
-        s = (plugin.getServer().getAllowEnd() ? plugin.getTranslation("end.allowed") : plugin.getTranslation("end.denied"));
-        properties.put("allowend", s);
-        properties.put("env", "" + plugin.getTranslation("env." + player.getWorld().getEnvironment().name().toLowerCase()));
-        sb = new StringBuilder();
-        if (motd.contains("%whitelist%")) {
-            for (OfflinePlayer op : plugin.getServer().getWhitelistedPlayers()) {
-                sb = sb.append(op.getName()).append(',');
-            }
-            if (sb.length() > 0)
-                sb = sb.deleteCharAt(sb.length() - 1);
-            properties.put("whitelist", "" + sb.toString());
-        }
-        sb = new StringBuilder();
-        if (motd.contains("%banlist%")) {
-            for (OfflinePlayer op : plugin.getServer().getBannedPlayers()) {
-                sb = sb.append(op.getName()).append(',');
-            }
-            if (sb.length() > 0)
-                sb = sb.deleteCharAt(sb.length() - 1);
-            properties.put("banlist", "" + sb.toString());
-        }
-        if (motd.contains("%worlds%")) {
-            sb = new StringBuilder();
-            for (World world : plugin.getServer().getWorlds()) {
-                sb = sb.append(diffToColor(world.getDifficulty()).toString()).append(world.getName()).append(ChatColor.WHITE).append(',');
-            }
-            if (sb.length() > 0)
-                sb.deleteCharAt(sb.length() - 1);
-            properties.put("worlds", "" + sb.toString());
-        }
-        properties.put("d", "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
-        properties.put("mo", "" + Calendar.getInstance().get(Calendar.MONTH));
-        properties.put("yr", "" + Calendar.getInstance().get(Calendar.YEAR));
-
-        properties.put("h", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.HOUR_OF_DAY) : Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
-        properties.put("mi", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.MINUTE) : Calendar.getInstance().get(Calendar.MINUTE)));
-        properties.put("s", "" + (Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 10 ? "0" + Calendar.getInstance().get(Calendar.SECOND) : Calendar.getInstance().get(Calendar.SECOND)));
-
-        properties.put("exp", "" + player.getExp());
-        // thank you MC wiki :)
-        int e = (int) (3.5 * (player.getLevel() + 1 * (player.getLevel() + 2) - player.getLevel() * (player.getLevel() + 1)));
-        properties.put("expprog", "" + player.getExp() / e * 100);
-        if (player.getWorld().getPVP()) {
-            s = plugin.getTranslation("pvp.allowed");
-        } else
-            s = plugin.getTranslation("pvp.denied");
-        properties.put("pvp", s);
-        properties.put("x", "" + player.getLocation().getX());
-        properties.put("y", "" + player.getLocation().getY());
-        properties.put("z", "" + player.getLocation().getZ());
-        properties.put("lev", "" + player.getLevel());
-        properties.put("food", "" + player.getFoodLevel());
-        properties.put("totalexp", "" + player.getTotalExperience());
-        if (motd.contains("%plugins%")) {
-            Plugin[] plugins = Bukkit.getPluginManager().getPlugins();
-            sb.delete(0, sb.length() - 1);
-            for (Plugin plug : plugins) {
-                sb = sb.append(plug.getDescription().getName()).append(',');
-            }
-            sb = sb.deleteCharAt(sb.length() - 1);
-            properties.put("plugins", sb.toString());
-        }
-        s = "<unknown>";
-        if (player.isOp())
-            s = plugin.getTranslation("op.is");
-        else
-            s = plugin.getTranslation("op.isnt");
-        properties.put("op", "" + s);
-        s = plugin.getTranslation("mode." + player.getGameMode().name().toLowerCase());
-        properties.put("mode", s);
-        // Swap properties at first, so translations work with colors
-        for (Entry<String, String> property : properties.entrySet()) {
-            if (motd.contains(property.getKey()))
-                motd = motd.replace("%" + property.getKey() + "%", property.getValue());
+        // Swap properties at first, so translations work with colors,
+        // formatting 'n' stuff
+        for (Entry<String, Variable> varEntry : variables.entrySet()) {
+            if (motd.contains("%".concat(varEntry.getKey()).concat("%")))
+                motd = motd.replace("%" + varEntry.getKey() + "%", varEntry.getValue().getValue(player));
         }
         // Apply colors patch
         for (ChatColor cc : ChatColor.values()) {
             motd = motd.replace("&" + cc.name().toLowerCase(), cc.toString());
             motd = motd.replace("&" + cc.name(), cc.toString());
         }
+        // some formatting
         if (motd.contains("&bo")) {
             motd = motd.replaceAll("&bo", ChatColor.BOLD.toString());
         }
@@ -353,11 +206,12 @@ public class RMMotdManager implements MotdManager {
         if (motd.contains("&no")) {
             motd = motd.replaceAll("&no", ChatColor.RESET.toString());
         }
+        // rainbow!
         if (motd.contains("&rbow")) {
             while (motd.contains("&rbow")) {
                 int index = motd.indexOf("&rbow") + 5;
                 int endIndex = motd.indexOf(ChatColor.RESET.toString(), index);
-                if(endIndex < 0){
+                if (endIndex < 0) {
                     endIndex = motd.length();
                 }
                 String substr = motd.substring(index, endIndex);
@@ -365,7 +219,7 @@ public class RMMotdManager implements MotdManager {
                 for (int i = 0; i < substr.length(); ++i) {
                     char c = substr.charAt(i);
                     // don't break my newlines!!!
-                    if(c == '/' && i <= substr.length() - 2 && substr.charAt(i+1) == 'n'){
+                    if (c == '/' && i <= substr.length() - 2 && substr.charAt(i + 1) == 'n') {
                         i++;
                         replacement = replacement.append("/n");
                         continue;
@@ -376,15 +230,15 @@ public class RMMotdManager implements MotdManager {
                 motd = motd.replace("&rbow".concat(substr).concat(ChatColor.RESET.toString()), replacement.toString());
             }
         }
+        // Permissions patch
         if (motd.contains(config.getPermissionIdentifier())) {
-            // Permissions patch
             for (String string : motd.split(" ")) {
                 if (string.contains(config.getPermissionIdentifier()))
                     motd = motd.replace(string, "" + (player.hasPermission(string.replace(config.getPermissionIdentifier(), "")) ? plugin.getTranslation("permission.has") : plugin.getTranslation("permission.hasnt")));
             }
         }
+        // Commands patch
         if (motd.contains(config.getCommandIdentifier())) {
-            // Commands patch
             for (String string : motd.split(" ")) {
                 if (string.contains(config.getCommandIdentifier())) {
                     FakeCommandSender fcs = new FakeCommandSender(player);
@@ -425,23 +279,34 @@ public class RMMotdManager implements MotdManager {
         return motd;
     }
 
-    private ChatColor diffToColor(Difficulty diff) {
-        switch (diff) {
-        case EASY:
-            return ChatColor.YELLOW;
-        case HARD:
-            return ChatColor.DARK_RED;
-        case NORMAL:
-            return ChatColor.GOLD;
-        case PEACEFUL:
-            return ChatColor.GREEN;
-        }
-        return ChatColor.WHITE;
-    }
-
     @Override
     public EMotdMode getMode() {
         return config.getMode();
+    }
+
+    @Override
+    public void setMOTD(String[] motd, String world, String group, int month, int day) throws IOException {
+        StringBuilder relativePath = new StringBuilder("messages").append(File.separator);
+        if (group.length() > 0) {
+            relativePath = relativePath.append(group).append(File.separator);
+        }
+        if (world.length() > 0) {
+            relativePath = relativePath.append(world).append(File.separator);
+        }
+        relativePath = relativePath.append("motd");
+        if (month != -1 && day != -1) {
+            relativePath = relativePath.append("_").append(month).append('_').append(day);
+        }
+        relativePath = relativePath.append(".txt");
+        Plugin pl = Bukkit.getPluginManager().getPlugin("RealMotd");
+        File dest = new File(pl.getDataFolder(), relativePath.toString());
+        if (!dest.exists()) {
+            dest.mkdirs();
+            dest.delete();
+            dest.createNewFile();
+        }
+        Bukkit.broadcastMessage(relativePath.toString());
+        Util.writeFile(dest, motd);
     }
 
 }
