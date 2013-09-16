@@ -52,3 +52,5 @@ transl:
     hasnt: cant
   comm:
     fail: Command failed
+  team:
+    none: None

@@ -24,12 +24,13 @@ public class VariablesManager {
     }
 
     public void reloadVariables(RealMotd plugin) {
+        vars.clear();
         HashSet<VariableProvider> providers = new HashSet<VariableProvider>();
         providers.add(new ScoreboardVariableProvider(plugin.getServer()));
         providers.add(new DefaultVariablesProvider(plugin.getServer()));
+        // TODO add variables event here
         for (VariableProvider vp : providers) {
             vars.putAll(vp.provide());
         }
-        providers.clear();
     }
 }
