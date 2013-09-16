@@ -69,7 +69,7 @@ public class RealMotd extends JavaPlugin implements Listener {
             getLogger().info("PII service registered.");
         } catch (Exception e) {
         }
-        VariablesManager.instance.initDefaultVariables(this);
+        VariablesManager.instance.reloadVariables(this);
     }
 
     public String getTranslation(String key) {
@@ -160,15 +160,16 @@ public class RealMotd extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(final PlayerJoinEvent event) {
-        if (cfg.getDelay() == 0)
+        int delay = cfg.getDelay() * 20;
+        if (delay <= 0)
             sendMotd(event.getPlayer());
-        else if (cfg.getDelay() > 0) {
+        else if (delay > 0) {
             getServer().getScheduler().runTaskLater(this, new Runnable() {
                 @Override
                 public void run() {
                     sendMotd(event.getPlayer());
                 }
-            }, cfg.getDelay());
+            }, delay);
         }
     }
 }

@@ -25,6 +25,7 @@ import org.bukkit.plugin.Plugin;
 import sk.tomsik68.realmotd.api.MotdManager;
 import sk.tomsik68.realmotd.api.groups.Group;
 import sk.tomsik68.realmotd.api.groups.GroupsRegistry;
+import sk.tomsik68.realmotd.vars.Variable;
 import sk.tomsik68.realmotd.vars.VariablesManager;
 
 public class RMMotdManager implements MotdManager {

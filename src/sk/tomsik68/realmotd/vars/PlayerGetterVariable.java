@@ -3,7 +3,6 @@ package sk.tomsik68.realmotd.vars;
 import org.bukkit.entity.Player;
 
 import sk.tomsik68.realmotd.RealMotd;
-import sk.tomsik68.realmotd.Variable;
 
 public class PlayerGetterVariable extends Variable {
 
