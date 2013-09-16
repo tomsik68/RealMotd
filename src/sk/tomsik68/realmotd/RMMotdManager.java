@@ -193,7 +193,7 @@ public class RMMotdManager implements MotdManager {
         for (ChatColor cc : ChatColor.values()) {
             motd = motd.replace("&" + cc.name().toLowerCase(), cc.toString());
             motd = motd.replace("&" + cc.name(), cc.toString());
-            motd = motd.replace("&" + cc.ordinal(), cc.toString());
+            motd = motd.replace("&" + Integer.toHexString(cc.ordinal()).toLowerCase(), cc.toString());
         }
         // some formatting
         if (motd.contains("&bo")) {

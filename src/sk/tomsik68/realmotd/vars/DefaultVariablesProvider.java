@@ -3,12 +3,14 @@ package sk.tomsik68.realmotd.vars;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.Team;
 
 import sk.tomsik68.realmotd.RealMotd;
 
@@ -261,7 +263,25 @@ public class DefaultVariablesProvider extends VariableProvider {
                 return plugin.getTranslation("mode.".concat(player.getGameMode().name().toLowerCase()));
             }
         });
+        result.put("team", new Variable(plugin) {
+            @Override
+            public String getValue(Player player) {
+                Team t = getTeam(player);
+                if (t != null)
+                    return t.getDisplayName();
+                else
+                    return plugin.getTranslation("team.none");
+            }
+
+            private Team getTeam(Player player) {
+                Set<Team> teams = player.getServer().getScoreboardManager().getMainScoreboard().getTeams();
+                for (Team team : teams) {
+                    if (team.getPlayers().contains(player))
+                        return team;
+                }
+                return null;
+            }
+        });
         return result;
     }
-
 }
