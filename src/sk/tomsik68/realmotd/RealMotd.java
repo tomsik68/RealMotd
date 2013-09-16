@@ -19,6 +19,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import sk.tomsik68.realmotd.api.MotdManager;
 import sk.tomsik68.realmotd.api.PiiMotdService;
 import sk.tomsik68.realmotd.api.groups.Group;
+import sk.tomsik68.realmotd.api.groups.GroupsRegistry;
+import sk.tomsik68.realmotd.vars.VariablesManager;
 
 /**
  * RealMotd for Bukkit
@@ -67,6 +69,7 @@ public class RealMotd extends JavaPlugin implements Listener {
             getLogger().info("PII service registered.");
         } catch (Exception e) {
         }
+        VariablesManager.instance.initDefaultVariables(this);
     }
 
     public String getTranslation(String key) {

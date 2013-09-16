@@ -24,17 +24,24 @@ import org.bukkit.plugin.Plugin;
 
 import sk.tomsik68.realmotd.api.MotdManager;
 import sk.tomsik68.realmotd.api.groups.Group;
+import sk.tomsik68.realmotd.api.groups.GroupsRegistry;
 import sk.tomsik68.realmotd.vars.VariablesManager;
 
 public class RMMotdManager implements MotdManager {
     private final ConfigFile config;
     private final Random rand;
     private final GroupsRegistry groups;
+    private final String subdirName;
 
     public RMMotdManager(ConfigFile cfg, GroupsRegistry groups) {
+        this(cfg, groups, "messages");
+    }
+
+    public RMMotdManager(ConfigFile cfg, GroupsRegistry groups, String subdirName) {
         rand = new Random();
         this.config = cfg;
         this.groups = groups;
+        this.subdirName = subdirName;
     }
 
     @Override
@@ -50,7 +57,7 @@ public class RMMotdManager implements MotdManager {
     }
 
     private List<File> getPotentialFiles(Plugin plugin, EMotdMode mode, String group, String world, int month, int day) {
-        String basePath = plugin.getDataFolder().getAbsolutePath() + File.separator + "messages";
+        String basePath = plugin.getDataFolder().getAbsolutePath() + File.separator + subdirName;
         List<File> result = new ArrayList<File>();
         if (mode == EMotdMode.DAILY) {
             result.addAll(getDailyMotdFiles(basePath, group, world, month, day));
@@ -149,7 +156,7 @@ public class RMMotdManager implements MotdManager {
     }
 
     public File getDefaultMotdFile() {
-        return new File(Bukkit.getServer().getPluginManager().getPlugin("RealMotd").getDataFolder(), "messages".concat(File.separator).concat("motd.txt"));
+        return new File(Bukkit.getServer().getPluginManager().getPlugin("RealMotd").getDataFolder(), subdirName.concat(File.separator).concat("motd.txt"));
     }
 
     @Override
@@ -177,7 +184,6 @@ public class RMMotdManager implements MotdManager {
         HashMap<String, Variable> variables = VariablesManager.instance.getVariables();
 
         // Swap properties at first, so translations work with colors,
-        // formatting 'n' stuff
         for (Entry<String, Variable> varEntry : variables.entrySet()) {
             if (motd.contains("%".concat(varEntry.getKey()).concat("%")))
                 motd = motd.replace("%" + varEntry.getKey() + "%", varEntry.getValue().getValue(player));
@@ -186,6 +192,7 @@ public class RMMotdManager implements MotdManager {
         for (ChatColor cc : ChatColor.values()) {
             motd = motd.replace("&" + cc.name().toLowerCase(), cc.toString());
             motd = motd.replace("&" + cc.name(), cc.toString());
+            motd = motd.replace("&" + cc.ordinal(), cc.toString());
         }
         // some formatting
         if (motd.contains("&bo")) {
@@ -216,6 +223,7 @@ public class RMMotdManager implements MotdManager {
                 }
                 String substr = motd.substring(index, endIndex);
                 StringBuilder replacement = new StringBuilder();
+                ChatColor[] rainbowColors = config.getRainbowColors();
                 for (int i = 0; i < substr.length(); ++i) {
                     char c = substr.charAt(i);
                     // don't break my newlines!!!
@@ -224,7 +232,7 @@ public class RMMotdManager implements MotdManager {
                         replacement = replacement.append("/n");
                         continue;
                     }
-                    replacement = replacement.append(config.getRainbowColors()[rand.nextInt(config.getRainbowColors().length)].toString()).append(c);
+                    replacement = replacement.append(rainbowColors[rand.nextInt(rainbowColors.length)].toString()).append(c);
                 }
                 replacement = replacement.append(ChatColor.RESET.toString());
                 motd = motd.replace("&rbow".concat(substr).concat(ChatColor.RESET.toString()), replacement.toString());
@@ -286,7 +294,7 @@ public class RMMotdManager implements MotdManager {
 
     @Override
     public void setMOTD(String[] motd, String world, String group, int month, int day) throws IOException {
-        StringBuilder relativePath = new StringBuilder("messages").append(File.separator);
+        StringBuilder relativePath = new StringBuilder(subdirName).append(File.separator);
         if (group.length() > 0) {
             relativePath = relativePath.append(group).append(File.separator);
         }

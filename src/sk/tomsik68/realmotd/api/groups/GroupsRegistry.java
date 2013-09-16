@@ -1,4 +1,4 @@
-package sk.tomsik68.realmotd;
+package sk.tomsik68.realmotd.api.groups;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,6 @@ import java.util.Set;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import sk.tomsik68.realmotd.api.groups.Group;
 
 public class GroupsRegistry {
     private final List<Group> groups = new ArrayList<Group>();
