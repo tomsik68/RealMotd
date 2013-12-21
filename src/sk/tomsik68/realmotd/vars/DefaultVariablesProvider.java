@@ -197,12 +197,12 @@ public class DefaultVariablesProvider extends VariableProvider {
                 return sb.toString();
             }
         });
-        result.put("d", new CalendarVariable(plugin, Calendar.DAY_OF_MONTH));
-        result.put("mo", new CalendarVariable(plugin, Calendar.MONTH));
-        result.put("yr", new CalendarVariable(plugin, Calendar.YEAR));
-        result.put("h", new CalendarVariable(plugin, Calendar.HOUR_OF_DAY));
-        result.put("mi", new CalendarVariable(plugin, Calendar.MINUTE));
-        result.put("s", new CalendarVariable(plugin, Calendar.SECOND));
+        result.put("d", new CalendarVariable(plugin, "%02d", Calendar.DAY_OF_MONTH));
+        result.put("mo", new CalendarVariable(plugin, "%02d", Calendar.MONTH));
+        result.put("yr", new CalendarVariable(plugin, "%02d", Calendar.YEAR));
+        result.put("h", new CalendarVariable(plugin, "%02d", Calendar.HOUR_OF_DAY));
+        result.put("mi", new CalendarVariable(plugin, "%02d", Calendar.MINUTE));
+        result.put("s", new CalendarVariable(plugin, "%02d", Calendar.SECOND));
 
         result.put("lev", new PlayerGetterVariable(plugin, "getLevel"));
         result.put("food", new PlayerGetterVariable(plugin, "getFoodLevel"));

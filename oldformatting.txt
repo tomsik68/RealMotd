@@ -1,0 +1,52 @@
+
+        // some formatting
+        if (motd.contains("&bo")) {
+            motd = motd.replaceAll("&bo", ChatColor.BOLD.toString());
+        }
+        if (motd.contains("&it")) {
+            motd = motd.replaceAll("&it", ChatColor.ITALIC.toString());
+        }
+        if (motd.contains("&str")) {
+            motd = motd.replaceAll("&str", ChatColor.STRIKETHROUGH.toString());
+        }
+        if (motd.contains("&ran")) {
+            motd = motd.replaceAll("&ran", ChatColor.MAGIC.toString());
+        }
+        if (motd.contains("&un")) {
+            motd = motd.replaceAll("&un", ChatColor.UNDERLINE.toString());
+        }
+        if (motd.contains("&no")) {
+            motd = motd.replaceAll("&no", ChatColor.RESET.toString());
+        }
+        // rainbow!
+        while (motd.contains("&rbow")) {
+            int index = motd.indexOf("&rbow") + 5;
+            int endIndex = motd.indexOf(ChatColor.RESET.toString(), index);
+            if (endIndex < 0) {
+                endIndex = motd.length();
+            }
+            String substr = motd.substring(index, endIndex);
+            StringBuilder replacement = new StringBuilder();
+            ChatColor[] rainbowColors = config.getRainbowColors();
+            for (int i = 0; i < substr.length(); ++i) {
+                char c = substr.charAt(i);
+                // don't break my newlines!!!
+                if ((c == '/' && i <= substr.length() - 2 && substr.charAt(i + 1) == 'n')) {
+                    i += 2;
+                    replacement = replacement.append("/n");
+                    continue;
+                }
+                replacement = replacement.append(rainbowColors[rand.nextInt(rainbowColors.length)].toString()).append(c);
+            }
+            replacement = replacement.append(ChatColor.RESET.toString());
+            motd = motd.replace("&rbow".concat(substr).concat(ChatColor.RESET.toString()), replacement.toString());
+        }
+        // Colors patch
+        for (ChatColor cc : ChatColor.values()) {
+            if (motd.contains("&" + cc.name().toLowerCase()))
+                motd = motd.replace("&" + cc.name().toLowerCase(), cc.toString());
+            if (motd.contains("&" + cc.name()))
+                motd = motd.replace("&" + cc.name(), cc.toString());
+            if (motd.contains("&" + cc.getChar()))
+                motd = motd.replace("&" + cc.getChar(), cc.toString());
+        }

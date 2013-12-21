@@ -7,17 +7,19 @@ import org.bukkit.entity.Player;
 import sk.tomsik68.realmotd.RealMotd;
 
 public class CalendarVariable extends Variable {
-    
-    private final int field;
 
-    public CalendarVariable(RealMotd plugin, int field) {
+    private final int field;
+    private final String format;
+
+    public CalendarVariable(RealMotd plugin, String formatStr, int field) {
         super(plugin);
         this.field = field;
+        format = formatStr;
     }
 
     @Override
     public String getValue(Player player) {
-        return Integer.toString(Calendar.getInstance().get(field));
+        return String.format(format, Calendar.getInstance().get(field));
     }
 
 }

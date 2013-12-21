@@ -1,18 +1,11 @@
 package sk.tomsik68.realmotd.api;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
 import sk.tomsik68.realmotd.EMotdMode;
 import sk.tomsik68.realmotd.RealMotd;
 
 public interface MotdManager {
     public EMotdMode getMode();
-
-    public File getMotdFile(Player player, int month, int day);
 
     /**
      * 
@@ -31,5 +24,5 @@ public interface MotdManager {
 
     public void setMOTD(String[] motd, String world, String group, int month, int day) throws Exception;
 
-    public File getMotdFile(Plugin plugin, EMotdMode mode, String group, String world, int month, int day);
+    
 }

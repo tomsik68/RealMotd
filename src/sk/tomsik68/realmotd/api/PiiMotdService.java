@@ -3,6 +3,7 @@ package sk.tomsik68.realmotd.api;
 import org.bukkit.entity.Player;
 
 import sk.tomsik68.pii.MOTDPlugin;
+import sk.tomsik68.realmotd.RMMotdManager;
 import sk.tomsik68.realmotd.Util;
 
 public class PiiMotdService implements MOTDPlugin {
@@ -17,7 +18,7 @@ public class PiiMotdService implements MOTDPlugin {
 
     @Override
     public void setMotd(Player player, String... motd) {
-        Util.writeFile(man.getMotdFile(player, -1, -1), motd);
+        Util.writeFile(((RMMotdManager) man).getMotdFile(player, -1, -1), motd);
     }
 
 }

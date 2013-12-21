@@ -1,26 +1,3 @@
-// begin rewrite
-        variables.put("player", new Variable(player, plugin) {
-            @Override
-            protected String getValue() {
-                return player.getName();
-            }
-        });
-        variables.put("nick", new Variable(player, plugin) {
-            @Override
-            protected String getValue() {
-                return player.getDisplayName();
-            }
-        });
-        variables.put("time", new Variable(player, plugin) {
-            @Override
-            protected String getValue() {
-                return "" + player.getWorld().getTime();
-            }
-        });
-        variables.put("timestat", new TimeStatVariable(plugin, player.getWorld().getTime()));
-        // TODO call an event at the end
-        // end rewrite
-        // --------------------------------------------------------------------------
         if (motd.contains("%player%"))
             variables.put("player", player.getName());
         if (motd.contains("%nick%"))

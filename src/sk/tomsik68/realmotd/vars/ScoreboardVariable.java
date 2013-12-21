@@ -2,6 +2,7 @@ package sk.tomsik68.realmotd.vars;
 
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
 
 import sk.tomsik68.realmotd.RealMotd;
 
@@ -15,7 +16,11 @@ public class ScoreboardVariable extends Variable {
 
     @Override
     public String getValue(Player player) {
-        return Integer.toString(objective.getScore(player).getScore());
+        Score score = objective.getScore(player);
+        if (score != null)
+            return Integer.toString(score.getScore());
+        else
+            return "0";
     }
 
 }

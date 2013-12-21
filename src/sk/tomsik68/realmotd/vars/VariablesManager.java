@@ -19,7 +19,7 @@ public class VariablesManager {
 
     public void registerVariable(String name, Variable var) {
         if (vars.containsKey(name))
-            RealMotd.log.warning(String.format("[RealMotd] Variable name conflict at %s: %s vs %s ", name, var.getClass().getName(), vars.get(name).getClass().getName()));
+            RealMotd.log.warning(String.format("[RealMotd] Variable name conflict at '%s': '%s' vs '%s' ", name, var.getClass().getName(), vars.get(name).getClass().getName()));
         vars.put(name, var);
     }
 
@@ -28,7 +28,6 @@ public class VariablesManager {
         HashSet<VariableProvider> providers = new HashSet<VariableProvider>();
         providers.add(new ScoreboardVariableProvider(plugin.getServer()));
         providers.add(new DefaultVariablesProvider(plugin.getServer()));
-        // TODO add variables event here
         for (VariableProvider vp : providers) {
             vars.putAll(vp.provide());
         }

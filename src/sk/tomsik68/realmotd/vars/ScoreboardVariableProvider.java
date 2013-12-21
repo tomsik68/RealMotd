@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Server;
-import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
 
 import sk.tomsik68.realmotd.RealMotd;

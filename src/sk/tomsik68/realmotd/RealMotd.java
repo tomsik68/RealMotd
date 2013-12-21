@@ -52,9 +52,9 @@ public class RealMotd extends JavaPlugin implements Listener {
                 e.printStackTrace();
             }
         }
-        File file = new File(getDataFolder(), "messages");
-        if (!file.exists())
-            file.mkdir();
+        File messagesDir = new File(getDataFolder(), "messages");
+        if (!messagesDir.exists())
+            messagesDir.mkdir();
         cfg.load(this);
         groups.load();
         handler = new RMMotdManager(cfg, groups);
@@ -70,6 +70,7 @@ public class RealMotd extends JavaPlugin implements Listener {
         } catch (Exception e) {
         }
         VariablesManager.instance.reloadVariables(this);
+        
     }
 
     public String getTranslation(String key) {

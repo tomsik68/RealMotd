@@ -1,6 +1,6 @@
 name: RealMotd
 main: sk.tomsik68.realmotd.RealMotd
-version: 0.9b
+version: 0.9
 commands:
     motd:
         description: Brings up the MOTD.
