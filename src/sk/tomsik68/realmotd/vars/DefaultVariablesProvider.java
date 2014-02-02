@@ -97,6 +97,11 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("playerlist", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 StringBuilder sb = new StringBuilder();
                 for (Player p : plugin.getServer().getOnlinePlayers()) {
@@ -109,11 +114,21 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("nplayersonline", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 return Integer.toString(player.getServer().getOnlinePlayers().length);
             }
         });
         result.put("nmaxplayers", new Variable(plugin) {
+            @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
             @Override
             public String getValue(Player player) {
                 return Integer.toString(player.getServer().getMaxPlayers());
@@ -121,11 +136,21 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("serverip", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 return player.getServer().getIp();
             }
         });
         result.put("serverport", new Variable(plugin) {
+            @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
             @Override
             public String getValue(Player player) {
                 return Integer.toString(player.getServer().getPort());
@@ -133,11 +158,21 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("serverid", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 return plugin.getServer().getServerId();
             }
         });
         result.put("allowflight", new Variable(plugin) {
+            @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
             @Override
             public String getValue(Player player) {
                 return plugin.getServer().getAllowFlight() ? plugin.getTranslation("flight.allowed") : plugin.getTranslation("flight.denied");
@@ -145,11 +180,21 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("allowednether", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 return plugin.getServer().getAllowNether() ? plugin.getTranslation("nether.allowed") : plugin.getTranslation("nether.denied");
             }
         });
         result.put("allowedend", new Variable(plugin) {
+            @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
             @Override
             public String getValue(Player player) {
                 return plugin.getServer().getAllowEnd() ? plugin.getTranslation("end.allowed") : plugin.getTranslation("end.denied");
@@ -163,6 +208,11 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("whitelist", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 StringBuilder sb = new StringBuilder();
                 for (OfflinePlayer p : player.getServer().getWhitelistedPlayers()) {
@@ -174,6 +224,11 @@ public class DefaultVariablesProvider extends VariableProvider {
             }
         });
         result.put("banlist", new Variable(plugin) {
+            @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
             @Override
             public String getValue(Player player) {
                 StringBuilder sb = new StringBuilder();
@@ -187,6 +242,11 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("worlds", new Variable(plugin) {
             @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
+            @Override
             public String getValue(Player player) {
                 StringBuilder sb = new StringBuilder();
                 for (World world : plugin.getServer().getWorlds()) {
@@ -199,7 +259,7 @@ public class DefaultVariablesProvider extends VariableProvider {
         });
         result.put("d", new CalendarVariable(plugin, "%02d", Calendar.DAY_OF_MONTH));
         result.put("mo", new CalendarVariable(plugin, "%02d", Calendar.MONTH));
-        result.put("yr", new CalendarVariable(plugin, "%02d", Calendar.YEAR));
+        result.put("yr", new CalendarVariable(plugin, "%04d", Calendar.YEAR));
         result.put("h", new CalendarVariable(plugin, "%02d", Calendar.HOUR_OF_DAY));
         result.put("mi", new CalendarVariable(plugin, "%02d", Calendar.MINUTE));
         result.put("s", new CalendarVariable(plugin, "%02d", Calendar.SECOND));
@@ -211,6 +271,7 @@ public class DefaultVariablesProvider extends VariableProvider {
         result.put("expprog", new Variable(plugin) {
             @Override
             public String getValue(Player player) {
+                // thank you MC wiki
                 double e = (3.5 * (player.getLevel() + 1 * (player.getLevel() + 2) - player.getLevel() * (player.getLevel() + 1)));
                 return Double.toString(player.getExp() / e * 100d);
             }
@@ -240,6 +301,11 @@ public class DefaultVariablesProvider extends VariableProvider {
             }
         });
         result.put("plugins", new Variable(plugin) {
+            @Override
+            public boolean requiresPlayer() {
+                return false;
+            }
+
             @Override
             public String getValue(Player player) {
                 Plugin[] plugins = player.getServer().getPluginManager().getPlugins();

@@ -42,6 +42,13 @@ public class Util {
 
     public static void writeFile(File file, String... lines) {
         try {
+            if (!file.getParentFile().exists()) {
+                file.getParentFile().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
             PrintWriter pw = new PrintWriter(file);
             for (String s : lines) {
                 pw.println(s);

@@ -16,6 +16,10 @@ public class CalendarVariable extends Variable {
         this.field = field;
         format = formatStr;
     }
+    @Override
+    public boolean requiresPlayer() {
+        return false;
+    }
 
     @Override
     public String getValue(Player player) {

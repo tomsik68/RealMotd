@@ -16,8 +16,9 @@ public class RainbowDecorator implements IMotdDecorator {
 
     @Override
     public String decorate(String motd) {
+        int index = 0;
         while (motd.contains("&rbow")) {
-            int index = motd.indexOf("&rbow") + 5;
+            index = motd.indexOf("&rbow") + 5;
             int endIndex = motd.indexOf(ChatColor.RESET.toString(), index);
             if (endIndex < 0) {
                 endIndex = motd.length();
@@ -35,8 +36,8 @@ public class RainbowDecorator implements IMotdDecorator {
                 replacement = replacement.append(rainbowColors[rand.nextInt(rainbowColors.length)].toString()).append(c);
             }
             replacement = replacement.append(ChatColor.RESET.toString());
-            motd = motd.replace("&rbow".concat(substr).concat(ChatColor.RESET.toString()), replacement.toString());
+            motd = motd.replaceFirst("&rbow".concat(substr), replacement.toString());
         }
-        return null;
+        return motd;
     }
 }

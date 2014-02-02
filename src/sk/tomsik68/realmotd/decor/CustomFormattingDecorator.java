@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import sk.tomsik68.realmotd.api.StringReplaceDecorator;
 
 public class CustomFormattingDecorator extends StringReplaceDecorator {
-    private Pattern pattern = Pattern.compile("&[\\w*]");
+    private Pattern pattern = Pattern.compile("&\\w*");
 
     @Override
     public Pattern getPattern() {
@@ -18,22 +18,22 @@ public class CustomFormattingDecorator extends StringReplaceDecorator {
     public String getReplacement(String inPattern) {
         // some formatting
         if (inPattern.contains("&bo")) {
-            inPattern = inPattern.replaceAll("&bo", ChatColor.BOLD.toString());
+            inPattern = inPattern.replace("&bo", ChatColor.BOLD.toString());
         }
         if (inPattern.contains("&it")) {
-            inPattern = inPattern.replaceAll("&it", ChatColor.ITALIC.toString());
+            inPattern = inPattern.replace("&it", ChatColor.ITALIC.toString());
         }
         if (inPattern.contains("&str")) {
-            inPattern = inPattern.replaceAll("&str", ChatColor.STRIKETHROUGH.toString());
+            inPattern = inPattern.replace("&str", ChatColor.STRIKETHROUGH.toString());
         }
         if (inPattern.contains("&ran")) {
-            inPattern = inPattern.replaceAll("&ran", ChatColor.MAGIC.toString());
+            inPattern = inPattern.replace("&ran", ChatColor.MAGIC.toString());
         }
         if (inPattern.contains("&un")) {
-            inPattern = inPattern.replaceAll("&un", ChatColor.UNDERLINE.toString());
+            inPattern = inPattern.replace("&un", ChatColor.UNDERLINE.toString());
         }
         if (inPattern.contains("&no")) {
-            inPattern = inPattern.replaceAll("&no", ChatColor.RESET.toString());
+            inPattern = inPattern.replace("&no", ChatColor.RESET.toString());
         }
         return inPattern;
     }

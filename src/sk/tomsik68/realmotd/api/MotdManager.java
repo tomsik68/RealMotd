@@ -1,7 +1,6 @@
 package sk.tomsik68.realmotd.api;
 
 import org.bukkit.entity.Player;
-import sk.tomsik68.realmotd.EMotdMode;
 import sk.tomsik68.realmotd.RealMotd;
 
 public interface MotdManager {

@@ -7,7 +7,7 @@ import org.bukkit.ChatColor;
 import sk.tomsik68.realmotd.api.StringReplaceDecorator;
 
 public class NamesColorDecorator extends StringReplaceDecorator {
-    private static final Pattern pattern = Pattern.compile("&(.+?)");
+    private static final Pattern pattern = Pattern.compile("&\\w*");
 
     @Override
     public Pattern getPattern() {
@@ -16,7 +16,6 @@ public class NamesColorDecorator extends StringReplaceDecorator {
 
     @Override
     public String getReplacement(String inPattern) {
-        // Colors patch
         for (ChatColor cc : ChatColor.values()) {
             if (inPattern.contains("&" + cc.name().toLowerCase()))
                 inPattern = inPattern.replace("&" + cc.name().toLowerCase(), cc.toString());

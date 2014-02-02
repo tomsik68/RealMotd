@@ -6,5 +6,5 @@ commands:
         description: Brings up the MOTD.
     realmotd:
         description: Management command. /realmotd reload - reloads configuration file. /realmotd groups - lists groups. /realmotd set - sets MOTD
-        usage: /realmotd reload | /realmotd groups | /realmotd set [-month <month>] [-day <day>] [-group <group>] [-world <world>] <MOTD>
+        usage: /realmotd reload | /realmotd groups | /realmotd importgroups <importer> | /realmotd set [-month <month>] [-day <day>] [-group <group>] [-world <world>] ; <MOTD>
         permission: server.op

@@ -12,7 +12,6 @@ public class PlayerGetterVariable extends Variable {
         super(plugin);
         this.getterName = getterName;
     }
-
     @Override
     public String getValue(Player player) {
         try {

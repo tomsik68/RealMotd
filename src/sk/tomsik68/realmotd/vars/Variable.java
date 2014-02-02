@@ -11,5 +11,9 @@ public abstract class Variable {
         this.plugin = plugin;
     }
 
+    public boolean requiresPlayer(){
+        return true;
+    }
+
     public abstract String getValue(Player player);
 }

@@ -13,7 +13,8 @@ public abstract class StringReplaceDecorator implements IMotdDecorator {
         Matcher matcher = getPattern().matcher(motd);
         while (matcher.find()) {
             String group = matcher.group();
-            motd = motd.replace(group, getReplacement(group));
+            String repl = getReplacement(group);
+            motd = motd.replace(group, repl);
         }
         return motd;
     }

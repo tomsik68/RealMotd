@@ -7,31 +7,27 @@ import java.io.PrintWriter;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.plugin.Plugin;
 
+import sk.tomsik68.realmotd.api.EMotdMode;
 import sk.tomsik68.realmotd.api.IMotdDecorator;
-import sk.tomsik68.realmotd.api.MessagesManager;
+import sk.tomsik68.realmotd.api.FilesManager;
 import sk.tomsik68.realmotd.api.MotdManager;
-import sk.tomsik68.realmotd.api.groups.Group;
 import sk.tomsik68.realmotd.api.groups.GroupsRegistry;
 import sk.tomsik68.realmotd.vars.Variable;
 import sk.tomsik68.realmotd.vars.VariablesManager;
 
 public class RMMotdManager implements MotdManager {
     private final ConfigFile config;
-    private final Random rand;
     private final GroupsRegistry groups;
-    private MessagesManager messages;
+    private FilesManager messages;
     private String subdirName;
 
     public RMMotdManager(ConfigFile cfg, GroupsRegistry groups) {
@@ -39,22 +35,18 @@ public class RMMotdManager implements MotdManager {
     }
 
     public RMMotdManager(ConfigFile cfg, GroupsRegistry groups, String subdirName) {
-        rand = new Random();
         this.config = cfg;
         this.groups = groups;
         Plugin plugin = Bukkit.getServer().getPluginManager().getPlugin("RealMotd");
-        this.messages = new MessagesManager(cfg, plugin.getDataFolder(), subdirName);
+        this.messages = new FilesManager(cfg, plugin.getDataFolder(), subdirName, "motd", "txt");
     }
 
     public File getMotdFile(Player player, int month, int day) {
-        RealMotd plugin = (RealMotd) player.getServer().getPluginManager().getPlugin("RealMotd");
-        Group group = groups.getGroup(player);
-        String groupName = "";
-        if (group != null)
-            groupName = group.getName();
+        String groupName = groups.getGroupName(player);
+
         String world = player.getWorld().getName();
         EMotdMode mode = config.getMode();
-        return messages.getMotdFile(plugin, mode, groupName, world, month, day);
+        return messages.getMotdFile(mode, groupName, world, month, day);
     }
 
     @Override
@@ -83,15 +75,26 @@ public class RMMotdManager implements MotdManager {
 
         // Swap properties at first, so translations work with colors,
         for (Entry<String, Variable> varEntry : variables.entrySet()) {
-            if (motd.contains("%".concat(varEntry.getKey()).concat("%")))
-                motd = motd.replace("%" + varEntry.getKey() + "%", varEntry.getValue().getValue(player));
+            String variableStr = "%".concat(varEntry.getKey()).concat("%");
+            if (motd.contains(variableStr)) {
+                if (player == null && !varEntry.getValue().requiresPlayer()) {
+                    RealMotd.log.warning(String.format("You can't use variable %s[class='%s'] as it requires player.", varEntry.getKey(), varEntry.getValue()));
+                } else {
+                    motd = motd.replace(variableStr, varEntry.getValue().getValue(player));
+                }
+            }
+
         }
-        Iterable<IMotdDecorator> decorators = MotdDecoratorRegistry.instance.getDecorators();
-        for (IMotdDecorator decorator : decorators) {
+        String[] decoratorNames = config.getDecorators();
+        for (String decoName : decoratorNames) {
             try {
-                motd = decorator.decorate(motd);
+                IMotdDecorator decorator = MotdDecoratorRegistry.instance.getDecorator(decoName);
+                String s = decorator.decorate(motd);
+                Validate.notNull(s, "Decorator returned null string.");
+                Validate.isTrue(!s.isEmpty(), "Decorator returned an empty string.");
+                motd = s;
             } catch (Exception e) {
-                RealMotd.log.severe("An error has occured while decorating MOTD:" + decorator.getClass().getName() + " is probably broken :(");
+                RealMotd.log.severe("An error has occured while decorating MOTD:" + decoName + " is probably broken :(");
                 e.printStackTrace();
             }
         }
@@ -99,7 +102,11 @@ public class RMMotdManager implements MotdManager {
         if (motd.contains(config.getPermissionIdentifier())) {
             for (String string : motd.split(" ")) {
                 if (string.contains(config.getPermissionIdentifier()))
-                    motd = motd.replace(string, "" + (player.hasPermission(string.replace(config.getPermissionIdentifier(), "")) ? plugin.getTranslation("permission.has") : plugin.getTranslation("permission.hasnt")));
+                    motd = motd.replace(
+                            string,
+                            ""
+                                    + (player.hasPermission(string.replace(config.getPermissionIdentifier(), "")) ? plugin
+                                            .getTranslation("permission.has") : plugin.getTranslation("permission.hasnt")));
             }
         }
         // Commands patch
@@ -138,7 +145,8 @@ public class RMMotdManager implements MotdManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            motd = "&yellowHello &gray%player%!/n&greenThis is default MOTD of RealMotd by &goldTomsik68/n&redTo change it, go to &gray" + messages.getDefaultMotdFile().getPath();
+            motd = "&yellowHello &gray%player%!/n&greenThis is default MOTD of RealMotd by &goldTomsik68/n&redTo change it, go to &gray"
+                    + messages.getDefaultMotdFile().getPath();
         } else {
             motd = Util.readFile(dest);
         }

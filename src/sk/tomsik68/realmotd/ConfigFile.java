@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
+import sk.tomsik68.realmotd.api.EMotdMode;
 import sk.tomsik68.realmotd.api.IConfig;
 
 public class ConfigFile implements IConfig {
@@ -55,11 +56,11 @@ public class ConfigFile implements IConfig {
     }
 
     public String getPermissionIdentifier() {
-        return config.getString("permission");
+        return config.getString("permission","^");
     }
 
     public String getCommandIdentifier() {
-        return config.getString("command");
+        return config.getString("command",">");
     }
 
     public boolean isGroupSpecific() {
@@ -89,7 +90,7 @@ public class ConfigFile implements IConfig {
         List<String> decorators = config.getStringList("decorators");
         if (decorators == null) {
             // standard set, before decorators API was introduced
-            return new String[] { "CustomFormattingDecorator", "NamesColorDecorator", "RainbowDecorator" };
+            return new String[] { "custom_formatting", "color_names", "rainbow" };
         }
         return decorators.toArray(new String[0]);
     }

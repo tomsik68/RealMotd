@@ -2,9 +2,9 @@
 permission: ^
 command: '>'
 decorators:
-  - 'CustomFormattingDecorator'
-  - 'NamesColorDecorator'
-  - 'RainbowDecorator'
+  - 'color_names'
+  - 'custom_formatting'
+  - 'rainbow'
 motd:
   world-specific: false
   group-specific: false

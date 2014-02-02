@@ -16,9 +16,8 @@ public class CharsColorDecorator extends StringReplaceDecorator {
 
     @Override
     public String getReplacement(String inPattern) {
-        System.out.println(inPattern);
         for(ChatColor cc : ChatColor.values()){
-            inPattern = inPattern.replace("&"+cc.getChar(), cc.toString());
+            inPattern = inPattern.replace("&"+cc.getChar(), ""+cc);
         }
         return inPattern;
     }
