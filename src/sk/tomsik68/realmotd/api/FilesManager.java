@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+
 public class FilesManager {
     private final File dataFolder;
     private final IConfig config;
@@ -29,7 +30,7 @@ public class FilesManager {
 
     public File getMotdFile(EMotdMode mode, String group, String world, int month, int day) {
         isGroupSpecific = group.length() > 0 && config.isGroupSpecific();
-        List<File> potentialFiles = getPotentialFiles(mode, group, world, month, day);
+        List<File> potentialFiles = getPotentialFiles( mode, group, world, month, day);
         
         for (File file : potentialFiles) {
             if (file.exists()) {
