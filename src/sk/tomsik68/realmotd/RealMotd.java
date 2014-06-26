@@ -9,6 +9,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -58,11 +60,11 @@ public class RealMotd extends JavaPlugin implements Listener {
         handler = new RMMotdManager(cfg, groups);
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(this, this);
-        
+
         RealMotdCommand cmdExec = new RealMotdCommand(this);
         getCommand("realmotd").setExecutor(cmdExec);
         getCommand("motd").setExecutor(cmdExec);
-        
+
         // If we have PII...
         try {
             Class.forName("sk.tomsik68.pii.PIIPlugin");
@@ -97,16 +99,28 @@ public class RealMotd extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(final PlayerJoinEvent event) {
+        sendMessage(event.getPlayer());
+
+    }
+
+    private void sendMessage(final Player player) {
         int delay = cfg.getDelay() * 20;
         if (delay <= 0)
-            sendMotd(event.getPlayer());
+            sendMotd(player);
         else if (delay > 0) {
             getServer().getScheduler().runTaskLater(this, new Runnable() {
                 @Override
                 public void run() {
-                    sendMotd(event.getPlayer());
+                    sendMotd(player);
                 }
             }, delay);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerSwitchWorld(final PlayerTeleportEvent event) {
+        if (cfg.isWorldSpecific() && !event.getFrom().getWorld().equals(event.getTo().getWorld())) {
+            sendMessage(event.getPlayer());
         }
     }
 

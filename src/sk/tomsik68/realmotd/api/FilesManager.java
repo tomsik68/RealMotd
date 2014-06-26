@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-
 public class FilesManager {
     private final File dataFolder;
     private final IConfig config;
@@ -23,15 +22,15 @@ public class FilesManager {
         this.config = config;
         this.subdirName = subDir;
         templateFileName = templateName;
-        if(!extension.startsWith("."))
+        if (!extension.startsWith("."))
             extension = ".".concat(extension);
         ext = extension;
     }
 
     public File getMotdFile(EMotdMode mode, String group, String world, int month, int day) {
         isGroupSpecific = group.length() > 0 && config.isGroupSpecific();
-        List<File> potentialFiles = getPotentialFiles( mode, group, world, month, day);
-        
+        List<File> potentialFiles = getPotentialFiles(mode, group, world, month, day);
+
         for (File file : potentialFiles) {
             if (file.exists()) {
                 return file;
@@ -54,7 +53,7 @@ public class FilesManager {
 
     private Collection<? extends File> getRandomMotdFiles(String basePath, String group, String world) {
         List<File> result = new ArrayList<File>();
-        if (isGroupSpecific) {
+        if (isGroupSpecific && group.length() > 0) {
             if (config.isWorldSpecific()) {
                 result.addAll(Arrays.asList(new File(getGroupFolder(basePath, group), world).listFiles(new FilenameFilter() {
 
@@ -94,32 +93,32 @@ public class FilesManager {
 
     private Collection<? extends File> getSingleMotdFiles(String basePath, String group, String world) {
         List<File> result = new ArrayList<File>();
-        if (isGroupSpecific) {
+        if (isGroupSpecific && group.length() > 0) {
             if (config.isWorldSpecific()) {
-                result.add(new File(getGroupFolder(basePath, group), world + File.separator + templateFileName+ext));
+                result.add(new File(getGroupFolder(basePath, group), world + File.separator + templateFileName + ext));
             }
-            result.add(new File(getGroupFolder(basePath, group), templateFileName+ext));
+            result.add(new File(getGroupFolder(basePath, group), templateFileName + ext));
         }
         if (config.isWorldSpecific()) {
-            result.add(new File(basePath, world + File.separator + templateFileName+ext));
+            result.add(new File(basePath, world + File.separator + templateFileName + ext));
         }
-        result.add(new File(basePath, templateFileName+ext));
+        result.add(new File(basePath, templateFileName + ext));
         return result;
 
     }
 
     private Collection<? extends File> getDailyMotdFiles(String basePath, String group, String world, int month, int day) {
         List<File> result = new ArrayList<File>();
-        if (isGroupSpecific) {
+        if (isGroupSpecific && group.length() > 0) {
             if (config.isWorldSpecific()) {
-                result.add(new File(getGroupFolder(basePath, group), world + File.separator + templateFileName+"_" + month + "_" + day + ext));
+                result.add(new File(getGroupFolder(basePath, group), world + File.separator + templateFileName + "_" + month + "_" + day + ext));
             }
-            result.add(new File(getGroupFolder(basePath, group), templateFileName+"_" + month + "_" + day + ext));
+            result.add(new File(getGroupFolder(basePath, group), templateFileName + "_" + month + "_" + day + ext));
         }
         if (config.isWorldSpecific()) {
-            result.add(new File(basePath, world + File.separator + templateFileName+"_" + month + "_" + day + ext));
+            result.add(new File(basePath, world + File.separator + templateFileName + "_" + month + "_" + day + ext));
         }
-        result.add(new File(basePath, templateFileName+"_" + month + "_" + day + ext));
+        result.add(new File(basePath, templateFileName + "_" + month + "_" + day + ext));
         return result;
     }
 
@@ -128,6 +127,6 @@ public class FilesManager {
     }
 
     public File getDefaultMotdFile() {
-        return new File(dataFolder, subdirName.concat(File.separator).concat(templateFileName+ext));
+        return new File(dataFolder, subdirName.concat(File.separator).concat(templateFileName + ext));
     }
 }
