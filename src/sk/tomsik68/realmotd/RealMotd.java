@@ -132,3 +132,20 @@ public class RealMotd extends JavaPlugin implements Listener {
         return groups;
     }
 }
+        // look for authme
+        try {
+            if(cfg.isAuthMeEnabled()){
+                AuthMe authMe = API.hookAuthMe();
+            }
+        } catch(Exception e){
+            log.warning("authme-wait-login is set to true, but AuthMe was not detected.");
+            log.warning("Your MOTD will not work properly!");
+        }
+        MotdDecoratorRegistry.instance.register("rainbow", new RainbowDecorator(cfg.getRainbowColors()));
+    @EventHandler(priority =  EventPriority.MONITOR)
+    public void onPlayerAuthMeLogin(final LoginEvent event){
+        if(cfg.isAuthMeEnabled())
+            sendMessage(event.getPlayer());
+    }
+
+
