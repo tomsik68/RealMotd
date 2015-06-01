@@ -120,7 +120,7 @@ public class DefaultVariablesProvider extends VariableProvider {
 
             @Override
             public String getValue(Player player) {
-                return Integer.toString(player.getServer().getOnlinePlayers().length);
+                return Integer.toString(player.getServer().getOnlinePlayers().size());
             }
         });
         result.put("nmaxplayers", new Variable(plugin) {
@@ -342,8 +342,9 @@ public class DefaultVariablesProvider extends VariableProvider {
             private Team getTeam(Player player) {
                 Set<Team> teams = player.getServer().getScoreboardManager().getMainScoreboard().getTeams();
                 for (Team team : teams) {
-                    if (team.getPlayers().contains(player))
+                    if(team.hasEntry(player.getName())){
                         return team;
+                    }
                 }
                 return null;
             }
