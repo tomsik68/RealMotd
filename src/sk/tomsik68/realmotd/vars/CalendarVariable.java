@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 
 import sk.tomsik68.realmotd.RealMotd;
 
-public class CalendarVariable extends Variable {
+final class CalendarVariable extends Variable {
 
     private final int field;
     private final String format;

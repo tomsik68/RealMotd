@@ -3,7 +3,7 @@ package sk.tomsik68.realmotd.api.groups;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class GroupsImporters {
+public final class GroupsImporters {
     public static final GroupsImporters instance = new GroupsImporters();
     private HashMap<String, GroupsImporter> importers = new HashMap<String, GroupsImporter>();
 

@@ -8,7 +8,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
-public class VaultGroupsImporter extends GroupsImporter {
+final class VaultGroupsImporter extends GroupsImporter {
 
     public VaultGroupsImporter() {
 

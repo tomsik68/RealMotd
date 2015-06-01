@@ -14,7 +14,7 @@ import org.bukkit.scoreboard.Team;
 
 import sk.tomsik68.realmotd.RealMotd;
 
-public class DefaultVariablesProvider extends VariableProvider {
+public final class DefaultVariablesProvider extends VariableProvider {
 
     public DefaultVariablesProvider(Server server) {
         super(server);

@@ -6,7 +6,7 @@ import org.bukkit.Server;
 
 import sk.tomsik68.realmotd.api.VariablesRegisterEvent;
 
-public class EventVariablesProvider extends VariableProvider {
+final class EventVariablesProvider extends VariableProvider {
 
     public EventVariablesProvider(Server server) {
         super(server);

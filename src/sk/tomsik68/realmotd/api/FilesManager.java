@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class FilesManager {
+public final class FilesManager {
     private final File dataFolder;
     private final IConfig config;
     private final String subdirName;

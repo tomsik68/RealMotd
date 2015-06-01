@@ -13,7 +13,7 @@ import org.bukkit.plugin.Plugin;
 import sk.tomsik68.realmotd.api.EMotdMode;
 import sk.tomsik68.realmotd.api.IConfig;
 
-public class ConfigFile implements IConfig {
+final class ConfigFile implements IConfig {
     private FileConfiguration config;
     private final File configFile;
 

@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 
 import sk.tomsik68.realmotd.api.IMotdDecorator;
 
-public class RainbowDecorator implements IMotdDecorator {
+public final class RainbowDecorator implements IMotdDecorator {
     private final ChatColor[] rainbowColors;
     private static final Random rand = new Random();
 

@@ -24,7 +24,7 @@ import sk.tomsik68.realmotd.api.groups.GroupsRegistry;
 import sk.tomsik68.realmotd.vars.Variable;
 import sk.tomsik68.realmotd.vars.VariablesManager;
 
-public class RMMotdManager implements MotdManager {
+public final class RMMotdManager implements MotdManager {
     private final ConfigFile config;
     private final GroupsRegistry groups;
     private FilesManager messages;

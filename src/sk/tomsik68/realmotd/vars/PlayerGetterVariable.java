@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 import sk.tomsik68.realmotd.RealMotd;
 
-public class PlayerGetterVariable extends Variable {
+final class PlayerGetterVariable extends Variable {
 
     private final String getterName;
 

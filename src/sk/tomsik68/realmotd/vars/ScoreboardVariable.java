@@ -6,7 +6,7 @@ import org.bukkit.scoreboard.Score;
 
 import sk.tomsik68.realmotd.RealMotd;
 
-public class ScoreboardVariable extends Variable {
+final class ScoreboardVariable extends Variable {
     private final Objective objective;
 
     public ScoreboardVariable(RealMotd plugin, Objective objective) {

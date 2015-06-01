@@ -5,7 +5,7 @@ import java.util.HashSet;
 
 import sk.tomsik68.realmotd.RealMotd;
 
-public class VariablesManager {
+public final class VariablesManager {
     public static VariablesManager instance = new VariablesManager();
     private HashMap<String, Variable> vars = new HashMap<String, Variable>();
 

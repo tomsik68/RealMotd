@@ -6,7 +6,7 @@ import sk.tomsik68.realmotd.decor.CharsColorDecorator;
 import sk.tomsik68.realmotd.decor.CustomFormattingDecorator;
 import sk.tomsik68.realmotd.decor.NamesColorDecorator;
 
-public class MotdDecoratorRegistry {
+final class MotdDecoratorRegistry {
 
     public static MotdDecoratorRegistry instance = new MotdDecoratorRegistry();
     private final HashMap<String, IMotdDecorator> decorators = new HashMap<String, IMotdDecorator>();

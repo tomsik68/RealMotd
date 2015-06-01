@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 
 import sk.tomsik68.realmotd.api.StringReplaceDecorator;
 
-public class CharsColorDecorator extends StringReplaceDecorator {
+public final class CharsColorDecorator extends StringReplaceDecorator {
     private static final Pattern pattern = Pattern.compile("&[\\w]");
 
     @Override

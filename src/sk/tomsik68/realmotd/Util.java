@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 
-public class Util {
+public final class Util {
 
     public static boolean isInt(String string) {
         try {

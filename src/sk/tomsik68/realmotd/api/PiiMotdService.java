@@ -6,7 +6,7 @@ import sk.tomsik68.pii.MOTDPlugin;
 import sk.tomsik68.realmotd.RMMotdManager;
 import sk.tomsik68.realmotd.Util;
 
-public class PiiMotdService implements MOTDPlugin {
+public final class PiiMotdService implements MOTDPlugin {
     private MotdManager man;
     public PiiMotdService(MotdManager handle){
         man = handle;

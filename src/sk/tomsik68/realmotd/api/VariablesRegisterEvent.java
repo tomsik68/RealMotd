@@ -8,7 +8,7 @@ import org.bukkit.event.HandlerList;
 
 import sk.tomsik68.realmotd.vars.Variable;
 
-public class VariablesRegisterEvent extends Event {
+public final class VariablesRegisterEvent extends Event {
     private final HashMap<String, Variable> toRegister = new HashMap<String, Variable>();
 
     public VariablesRegisterEvent() {

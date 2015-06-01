@@ -9,7 +9,7 @@ import org.bukkit.scoreboard.Objective;
 
 import sk.tomsik68.realmotd.RealMotd;
 
-public class ScoreboardVariableProvider extends VariableProvider {
+final class ScoreboardVariableProvider extends VariableProvider {
 
     public ScoreboardVariableProvider(Server server) {
         super(server);

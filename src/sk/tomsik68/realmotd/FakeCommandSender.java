@@ -9,7 +9,7 @@ import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 
-public class FakeCommandSender implements CommandSender {
+final class FakeCommandSender implements CommandSender {
 	private final CommandSender sender;
 	private StringBuilder sb = new StringBuilder();
 	public FakeCommandSender(CommandSender perm) {

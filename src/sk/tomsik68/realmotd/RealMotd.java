@@ -29,7 +29,7 @@ import sk.tomsik68.realmotd.vars.VariablesManager;
  * 
  * @author Tomsik68
  */
-public class RealMotd extends JavaPlugin implements Listener {
+public final class RealMotd extends JavaPlugin implements Listener {
 
     public static MotdManager handler;
     public static Logger log;

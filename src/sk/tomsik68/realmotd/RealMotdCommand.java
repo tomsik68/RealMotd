@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 import sk.tomsik68.realmotd.api.groups.GroupsImporter;
 import sk.tomsik68.realmotd.api.groups.GroupsImporters;
 
-public class RealMotdCommand implements CommandExecutor {
+final class RealMotdCommand implements CommandExecutor {
     private final RealMotd plugin;
 
     public RealMotdCommand(RealMotd rm) {
