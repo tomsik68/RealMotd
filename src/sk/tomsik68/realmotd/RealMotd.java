@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import fr.xephi.authme.AuthMe;
+import fr.xephi.authme.api.API;
+import fr.xephi.authme.events.LoginEvent;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -74,7 +77,17 @@ public class RealMotd extends JavaPlugin implements Listener {
         }
         VariablesManager.instance.reloadVariables(this);
 
-        MotdDecoratorRegistry.instance.register("rainbow", new RainbowDecorator(cfg.getRainbowColors()));
+        // look for authme
+        try {
+            if (cfg.isAuthMeEnabled()) {
+                AuthMe authMe = API.hookAuthMe();
+            }
+        } catch(Exception e) {
+            log.warning("authme-wait-login is set to true, but AuthMe was not detected.");
+            log.warning("Your MOTD will not work properly!");
+        }
+
+        MotdDecoratorRegistry.instance.register("rainbow",new RainbowDecorator(cfg.getRainbowColors()));
     }
 
     @Override
@@ -131,21 +144,10 @@ public class RealMotd extends JavaPlugin implements Listener {
     public GroupsRegistry getGroupRegistry() {
         return groups;
     }
-}
-        // look for authme
-        try {
-            if(cfg.isAuthMeEnabled()){
-                AuthMe authMe = API.hookAuthMe();
-            }
-        } catch(Exception e){
-            log.warning("authme-wait-login is set to true, but AuthMe was not detected.");
-            log.warning("Your MOTD will not work properly!");
-        }
-        MotdDecoratorRegistry.instance.register("rainbow", new RainbowDecorator(cfg.getRainbowColors()));
-    @EventHandler(priority =  EventPriority.MONITOR)
-    public void onPlayerAuthMeLogin(final LoginEvent event){
-        if(cfg.isAuthMeEnabled())
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onPlayerAuthMeLogin(final LoginEvent event) {
+        if (cfg.isAuthMeEnabled())
             sendMessage(event.getPlayer());
     }
-
-
+}
