@@ -81,8 +81,10 @@ public final class RealMotd extends JavaPlugin implements Listener {
         try {
             if (cfg.isAuthMeEnabled()) {
                 AuthMe authMe = API.hookAuthMe();
+                AuthMeLoginListener listener = new AuthMeLoginListener(this);
+                getServer().getPluginManager().registerEvents(listener, this);
             }
-        } catch(Exception e) {
+        } catch(Throwable e) {
             log.warning("authme-wait-login is set to true, but AuthMe was not detected.");
             log.warning("Your MOTD will not work properly!");
         }
@@ -112,11 +114,12 @@ public final class RealMotd extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(final PlayerJoinEvent event) {
-        sendMessage(event.getPlayer());
-
+        if(!cfg.isAuthMeEnabled()) {
+            sendMessage(event.getPlayer());
+        }
     }
 
-    private void sendMessage(final Player player) {
+    void sendMessage(final Player player) {
         int delay = cfg.getDelay() * 20;
         if (delay <= 0)
             sendMotd(player);
@@ -143,11 +146,5 @@ public final class RealMotd extends JavaPlugin implements Listener {
 
     public GroupsRegistry getGroupRegistry() {
         return groups;
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR)
-    public void onPlayerAuthMeLogin(final LoginEvent event) {
-        if (cfg.isAuthMeEnabled())
-            sendMessage(event.getPlayer());
     }
 }
