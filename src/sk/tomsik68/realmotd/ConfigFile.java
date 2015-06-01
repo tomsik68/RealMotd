@@ -98,4 +98,8 @@ public class ConfigFile implements IConfig {
     public int getDelay() {
         return config.getInt("motd.delay", 0);
     }
+
+    public boolean isAuthMeEnabled(){
+        return config.getBoolean("authme-wait-login", false);
+    }
 }
