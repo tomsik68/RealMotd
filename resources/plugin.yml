@@ -1,6 +1,7 @@
 name: RealMotd
 main: sk.tomsik68.realmotd.RealMotd
 version: 0.9.1
+softdepend: [Vault, AuthMe]
 commands:
     motd:
         description: Brings up the MOTD.
